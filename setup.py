@@ -9,7 +9,7 @@ entry_points = {
 TESTS_REQUIRE = []
 
 setup(
-	name='nti.predictionio',
+	name='nti.graphdb',
 	version='0.0',
 	keywords='Experimental Code',
 	author='NTI',
@@ -27,7 +27,7 @@ setup(
 	tests_require=TESTS_REQUIRE, # Needed for e.g., tox
 	install_requires=[
 		'setuptools',
-		'predictionio >= 0.6.2'
+		'py2neo >= 1.6.0'
 	],
 	extras_require={
 		'test': TESTS_REQUIRE,
