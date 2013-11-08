@@ -1,42 +1,35 @@
-from setuptools import setup, find_packages
 import codecs
+from setuptools import setup, find_packages
 
 VERSION = '0.0.0'
 
 entry_points = {
 }
 
-TESTS_REQUIRE = []
-
 setup(
-	name='nti.graphdb',
-	version='0.0',
-	keywords='Experimental Code',
-	author='NTI',
-	author_email='jason.madden@nextthought.com',
-	description='NextThought Clients',
-	classifiers=[
-		"Development Status :: 4 - Alpha",
-		"Intended Audience :: Developers :: Education",
-		"Operating System :: OS Independent",
-		"Programming Language :: Python :: 2.7",
-		"Internet :: WWW/HTTP",
-		"Natural Language :: English"
-		],
-
-	tests_require=TESTS_REQUIRE, # Needed for e.g., tox
-	install_requires=[
-		'setuptools',
-		'py2neo >= 1.6.0'
-	],
-	extras_require={
-		'test': TESTS_REQUIRE,
-		'tools': [ ]
-	},
+    name='nti.graphdb',
+    version=VERSION,
+    author='Jason Madden',
+    author_email='jason@nextthought.com',
+    description="NTI graphdb",
+    long_description=codecs.open('README.rst', encoding='utf-8').read(),
+    license='Proprietary',
+    keywords='pyramid preference',
+    classifiers=[
+        'Intended Audience :: Developers',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
+		'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        ],
 	packages=find_packages('src'),
 	package_dir={'': 'src'},
-	include_package_data=True,
 	namespace_packages=['nti'],
-	zip_safe=False,
+	install_requires=[
+		'setuptools',
+        'py2neo'
+	],
 	entry_points=entry_points
-	)
+)
