@@ -1,0 +1,10 @@
+<configure	xmlns="http://namespaces.zope.org/zope"
+			xmlns:meta="http://namespaces.zope.org/meta">
+
+	<meta:directives namespace="http://nextthought.com/ntp/predictionio">
+		<meta:directive	name="registerPredictionIOApp"
+						schema=".zcml.IRegisterPredictionIOApp"
+						handler=".zcml.registerPredictionIOApp" />
+	</meta:directives>
+
+</configure>
