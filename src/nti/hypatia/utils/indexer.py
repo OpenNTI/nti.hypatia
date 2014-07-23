@@ -76,10 +76,9 @@ def main():
 						verbose=args.verbose,
 						context=context,
 						minimal_ds=True,
-						config_features=("devmode",),
 						function=lambda: _process_args(args))
 
-def _create_context(env_dir, devmode):
+def _create_context(env_dir, devmode=False):
 	env_dir = os.path.expanduser(env_dir)
 
 	etc = os.getenv('DATASERVER_ETC_DIR') or os.path.join(env_dir, 'etc')
