@@ -9,13 +9,7 @@ __docformat__ = "restructuredtext en"
 
 import uuid
 
-from zope import component
 from zope.component.hooks import setHooks
-
-from nti.dataserver import interfaces as nti_interfaces
-
-from nti.hypatia import interfaces as hypatia_interfaces
-from nti.hypatia.adapters import _HypatiaUserIndexController
 
 from nti.dataserver.tests.mock_dataserver import WithMockDS
 from nti.dataserver.tests.mock_dataserver import mock_db_trans
@@ -45,15 +39,6 @@ zanpakuto_commands = (
     "Call forth the Twilight",
     "Multiplication and subtraction of fire and ice, show your might")
 
-def register():
-    try:
-        # temp hack to register adapter while the zcml condition zopyx_index is
-        # deprecated
-        component.provideAdapter(_HypatiaUserIndexController, (nti_interfaces.IUser,),
-                                 hypatia_interfaces.IHypatiaUserIndexController)
-    except:
-        pass
-
 class SharedConfiguringTestLayer(ZopeComponentLayer,
                                  GCLayerMixin,
                                  ConfiguringLayerMixin,
@@ -63,9 +48,8 @@ class SharedConfiguringTestLayer(ZopeComponentLayer,
 
     @classmethod
     def setUp(cls):
-        cls.setUpPackages()
         setHooks()
-        register()
+        cls.setUpPackages()
 
     @classmethod
     def tearDown(cls):
@@ -74,8 +58,8 @@ class SharedConfiguringTestLayer(ZopeComponentLayer,
 
     @classmethod
     def testSetUp(cls, test=None):
-        cls.setUpTestDS(test)
         setHooks()
+        cls.setUpTestDS(test)
         
     @classmethod
     def testTearDown(cls):
@@ -85,7 +69,6 @@ class HypatiaApplicationTestLayer(ApplicationTestLayer):
 
     @classmethod
     def setUp(cls):
-        register()
         setHooks()
 
     @classmethod
