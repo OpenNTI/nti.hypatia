@@ -10,6 +10,7 @@ __docformat__ = "restructuredtext en"
 import uuid
 
 from zope import component
+from zope.component.hooks import setHooks
 
 from nti.dataserver import interfaces as nti_interfaces
 
@@ -63,6 +64,7 @@ class SharedConfiguringTestLayer(ZopeComponentLayer,
     @classmethod
     def setUp(cls):
         cls.setUpPackages()
+        setHooks()
         register()
 
     @classmethod
@@ -73,6 +75,7 @@ class SharedConfiguringTestLayer(ZopeComponentLayer,
     @classmethod
     def testSetUp(cls, test=None):
         cls.setUpTestDS(test)
+        setHooks()
         
     @classmethod
     def testTearDown(cls):
@@ -83,6 +86,7 @@ class HypatiaApplicationTestLayer(ApplicationTestLayer):
     @classmethod
     def setUp(cls):
         register()
+        setHooks()
 
     @classmethod
     def tearDown(cls):
