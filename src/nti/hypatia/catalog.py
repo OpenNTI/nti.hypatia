@@ -24,10 +24,20 @@ from hypatia.field import FieldIndex
 from hypatia.catalog import CatalogQuery
 from hypatia.text.cosineindex import CosineIndex
 
-from nti.contentsearch import discriminators
-from nti.contentsearch.constants import (content_, ngrams_, title_, tags_, keywords_,
-										 redactionExplanation_, replacementContent_,
-										 type_, acl_, creator_)
+from nti.contentsearch.discriminators import get_acl
+from nti.contentsearch.discriminators import get_tags
+from nti.contentsearch.discriminators import get_creator
+from nti.contentsearch.discriminators import get_keywords
+from nti.contentsearch.discriminators import get_object_ngrams
+from nti.contentsearch.discriminators import get_object_content
+from nti.contentsearch.discriminators import get_title_and_ngrams
+from nti.contentsearch.discriminators import get_replacement_content
+from nti.contentsearch.discriminators import get_type as cs_get_type
+from nti.contentsearch.discriminators import get_redaction_explanation_and_ngrams
+
+from nti.contentsearch.constants import type_, acl_, creator_
+from nti.contentsearch.constants import redactionExplanation_, replacementContent_
+from nti.contentsearch.constants import content_, ngrams_, title_, tags_, keywords_
 
 from nti.dataserver import metadata_index
 
@@ -44,7 +54,7 @@ class SearchCatalog(Catalog):
 	family = BTrees.family64
 
 def get_type(obj, default=None):
-	result = discriminators.get_type(obj, default)
+	result = cs_get_type(obj, default)
 	result = (result,) if result and result is not default else default
 	return result
 
@@ -59,49 +69,48 @@ def create_catalog(lexicon=None, ngram_lexicon=None, family=BTrees.family64):
 	index = CosineIndex(lexicon=lexicon, family=family)
 	result[content_] = TextIndex(lexicon=lexicon,
 								 index=index,
-								 discriminator=discriminators.get_object_content,
+								 discriminator=get_object_content,
 								 family=family)
 
 	index = CosineIndex(lexicon=ngram_lexicon, family=family)
 	result[ngrams_] = TextIndex(lexicon=ngram_lexicon,
 								index=index,
-								discriminator=discriminators.get_object_ngrams,
+								discriminator=get_object_ngrams,
 								family=family)
 
-	result[tags_] = SearchKeywordIndex(discriminator=discriminators.get_tags,
+	result[tags_] = SearchKeywordIndex(discriminator=get_tags,
 								 	   family=family)
 
-	result[keywords_] = SearchKeywordIndex(discriminator=discriminators.get_keywords,
+	result[keywords_] = SearchKeywordIndex(discriminator=get_keywords,
 									 	   family=family)
 
 	index = CosineIndex(lexicon=lexicon, family=family)
 	result[title_] = TextIndex(lexicon=lexicon,
 							   index=index,
-							   discriminator=discriminators.get_title_and_ngrams,
+							   discriminator=get_title_and_ngrams,
 							   family=family)
 
 	index = CosineIndex(lexicon=lexicon, family=family)
 	result[redactionExplanation_] = \
-			TextIndex(lexicon=lexicon,
-					  index=index,
-					  discriminator=discriminators.get_redaction_explanation_and_ngrams,
-					  family=family)
+				TextIndex(lexicon=lexicon,
+						  index=index,
+						  discriminator=get_redaction_explanation_and_ngrams,
+						  family=family)
 
 	index = CosineIndex(lexicon=lexicon, family=family)
 	result[replacementContent_] = \
 						TextIndex(lexicon=lexicon,
 								  index=index,
-								  discriminator=discriminators.get_replacement_content,
+								  discriminator=get_replacement_content,
 								  family=family)
 
-	result[creator_] = FieldIndex(discriminator=discriminators.get_creator,
+	result[creator_] = FieldIndex(discriminator=get_creator,
 								  family=family)
 	
-	result[acl_] = SearchKeywordIndex(discriminator=discriminators.get_acl,
+	result[acl_] = SearchKeywordIndex(discriminator=get_acl,
 									  family=family)
 
 	return result
-
 
 class _proxy(object):
 	

@@ -16,21 +16,22 @@ from hypatia.query import Any
 from hypatia.query import Contains
 from hypatia.text.parsetree import ParseError
 
-from nti.contentsearch import content_utils
-from nti.contentsearch import interfaces as search_interfaces
-from nti.contentsearch.constants import (content_, ngrams_, title_, tags_, keywords_,
-										 acl_, redactionExplanation_, type_, replacementContent_,
-										 creator_,)
+from nti.contentsearch.interfaces import ISearchQuery
+from nti.contentsearch.constants import replacementContent_
+from nti.contentsearch.content_utils import is_covered_by_ngram_computer
+from nti.contentsearch.constants import content_, ngrams_, title_, tags_, keywords_
+from nti.contentsearch.constants import acl_, redactionExplanation_, type_, creator_
 
 from . import get_user
 from . import search_catalog
-from . import interfaces as hypatia_interfaces
 from . import get_usernames_of_dynamic_memberships
 
-def can_use_ngram_field(query):
-	return content_utils.is_covered_by_ngram_computer(query.term, query.language)
+from .interfaces import ISearchQueryParser
 
-@interface.implementer(hypatia_interfaces.ISearchQueryParser)
+def can_use_ngram_field(query):
+	return is_covered_by_ngram_computer(query.term, query.language)
+
+@interface.implementer(ISearchQueryParser)
 class _DefaultQueryParser(object):
 
 	singleton = None
@@ -52,12 +53,12 @@ class _DefaultQueryParser(object):
 		return term
 
 	def parse(self, query, user=None):
-		query = search_interfaces.ISearchQuery(query)
+		query = ISearchQuery(query)
 		term = self.validate(query)
 		return self._parse(query, user, term)
 
 	def _parse(self, query, user, term=None):
-		query = search_interfaces.ISearchQuery(query)
+		query = ISearchQuery(query)
 		term = query.term.lower() if not term else term
 
 		catalog = search_catalog()

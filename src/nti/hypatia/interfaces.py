@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-hypatia interfaces
-
 .. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
@@ -12,10 +10,12 @@ from zope import interface
 
 from zc.catalogqueue.interfaces import ICatalogQueue
 
-from hypatia import interfaces as hypatia_interfaces
-from hypatia.text import interfaces as text_interfaces
+from hypatia.interfaces import ICatalog
+from hypatia.interfaces import ICatalogQuery
+from hypatia.text.interfaces import ILexicon
 
-from nti.contentsearch import interfaces as search_interfaces
+from nti.contentsearch.interfaces import ISearchQueryParser
+from nti.contentsearch.interfaces import IEntityIndexController
 
 DEFAULT_HEARTBEAT = 10
 DEFAULT_QUEUE_LIMIT = 100
@@ -47,10 +47,10 @@ class ISearchCatalogQueue(ICatalogQueue):
 		return the search event queue(s) for the specified index
 		"""
 
-class ISearchCatalog(hypatia_interfaces.ICatalog):
+class ISearchCatalog(ICatalog):
 	pass
 
-class ISearchCatalogQuery(hypatia_interfaces.ICatalogQuery):
+class ISearchCatalogQuery(ICatalogQuery):
 	pass
 
 class ISearchKeywordIndex(interface.Interface):
@@ -74,19 +74,19 @@ class ISearchKeywordIndex(interface.Interface):
 class ISearchTimeFieldIndex(interface.Interface):
 	pass
 
-class ISearchLexicon(text_interfaces.ILexicon):
+class ISearchLexicon(ILexicon):
 
 	def get_similiar_words(term, threshold=0.75, common_length=-1):
 		"""
 		return a list of similar words based on the levenshtein distance
 		"""
 
-class ISearchQueryParser(search_interfaces.ISearchQueryParser):
+class ISearchQueryParser(ISearchQueryParser):
 
 	def parse(query, user=None):
 		"""
 		parse the specified query
 		"""
 
-class IHypatiaUserIndexController(search_interfaces.IEntityIndexController):
+class IHypatiaUserIndexController(IEntityIndexController):
 	pass

@@ -13,14 +13,18 @@ import functools
 import transaction
 
 from zope import component
-from zope.lifecycleevent import interfaces as lce_interfaces
+from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 
-from nti.contentsearch import discriminators
 from nti.contentsearch.constants import acl_
+from nti.contentsearch.discriminators import query_uid
 
 from nti.dataserver.users import Entity
-from nti.dataserver import interfaces as nti_interfaces
+from nti.dataserver.interfaces import IUser
+from nti.dataserver.interfaces import IEntity
+from nti.dataserver.interfaces import IDeletedObjectPlaceholder
 from nti.dataserver.interfaces import ITargetedStreamChangeEvent
+from nti.dataserver.interfaces import IDataserverTransactionRunner
+from nti.dataserver.interfaces import SC_CREATED, SC_SHARED, SC_MODIFIED, SC_DELETED
 
 from . import is_indexable
 from . import search_queue
@@ -28,7 +32,7 @@ from . import process_queue
 from . import search_catalog
 
 def add_2_queue(obj):
-	iid = discriminators.query_uid(obj)
+	iid = query_uid(obj)
 	if iid is not None:
 		__traceback_info__ = iid
 		search_queue().add(iid)
@@ -45,7 +49,7 @@ def queue_added(obj):
 
 def queue_modified(obj):
 	if is_indexable(obj):
-		iid = discriminators.query_uid(obj)
+		iid = query_uid(obj)
 		if iid is not None:
 			__traceback_info__ = iid
 			try:
@@ -57,7 +61,7 @@ def queue_modified(obj):
 
 def queue_remove(obj):
 	if is_indexable(obj):
-		iid = discriminators.query_uid(obj)
+		iid = query_uid(obj)
 		if iid is not None:
 			__traceback_info__ = iid
 			search_queue().remove(iid)
@@ -72,7 +76,7 @@ def _object_added(modeled, event):
 
 # IObjectModifiedEvent
 def _object_modified(modeled, event):
-	if nti_interfaces.IDeletedObjectPlaceholder.providedBy(modeled):
+	if IDeletedObjectPlaceholder.providedBy(modeled):
 		queue_remove(modeled)
 	else:
 		queue_modified(modeled)
@@ -85,12 +89,12 @@ def delete_userdata(username):
 		search_queue().remove(docid)
 	return len(docids)
 
-@component.adapter(nti_interfaces.IUser, lce_interfaces.IObjectRemovedEvent)
+@component.adapter(IUser, IObjectRemovedEvent)
 def _user_deleted(user, event):
 	username = user.username
 	def _process_event():
 		transaction_runner = \
-			component.getUtility(nti_interfaces.IDataserverTransactionRunner)
+			component.getUtility(IDataserverTransactionRunner)
 		func = functools.partial(delete_userdata, username=username)
 		transaction_runner(func)
 		return True
@@ -100,9 +104,7 @@ def _user_deleted(user, event):
 
 # on change listener
 
-_changeType_events = (nti_interfaces.SC_CREATED,
-					  nti_interfaces.SC_SHARED,
-					  nti_interfaces.SC_MODIFIED)
+_changeType_events = (SC_CREATED, SC_SHARED, SC_MODIFIED)
 
 @component.adapter(ITargetedStreamChangeEvent)
 def onChange(event):
@@ -110,15 +112,15 @@ def onChange(event):
 	target = event.target
 	changeType, changeObject = change.type, change.object
 	entity = Entity.get_entity(str(target)) \
-			 if not nti_interfaces.IEntity.providedBy(target) else target
+			 if not IEntity.providedBy(target) else target
 
-	should_process = nti_interfaces.IUser.providedBy(entity)
+	should_process = IUser.providedBy(entity)
 	if should_process:
 		if changeType in _changeType_events:
 			should_process = changeObject.isSharedDirectlyWith(entity)
 
 	if should_process:
-		if changeType != nti_interfaces.SC_DELETED:
+		if changeType != SC_DELETED:
 			queue_added(changeObject)
 
 	return should_process
@@ -131,7 +133,7 @@ from pyramid.interfaces import INewRequest
 def requestIndexation(event):
 	def _process_event():
 		transaction_runner = \
-			component.getUtility(nti_interfaces.IDataserverTransactionRunner)
+			component.getUtility(IDataserverTransactionRunner)
 		func = functools.partial(process_queue, limit=-1)
 		transaction_runner(func)
 		return True

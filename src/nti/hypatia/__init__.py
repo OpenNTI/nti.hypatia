@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-hypatia module
-
 .. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
@@ -16,27 +14,28 @@ from zope import component
 
 import zope.intid
 
-from nti.contentsearch import interfaces as search_interfaces
+from nti.contentsearch.interfaces import ITypeResolver
 
 from nti.dataserver import users
-from nti.dataserver import interfaces as nti_interfaces
+from nti.dataserver.interfaces import IUser
 
-from . import interfaces
+from .interfaces import ISearchCatalog
+from .interfaces import ISearchCatalogQueue
+from .interfaces import DEFAULT_QUEUE_LIMIT
 
 LOCK_NAME = u"nti/hypatia/lock"
-DEFAULT_QUEUE_LIMIT = interfaces.DEFAULT_QUEUE_LIMIT
 
 def search_queue():
-	result = component.getUtility(interfaces.ISearchCatalogQueue)
+	result = component.getUtility(ISearchCatalogQueue)
 	return result
 
 def search_catalog():
-	result = component.getUtility(interfaces.ISearchCatalog)
+	result = component.getUtility(ISearchCatalog)
 	return result
 
 def get_user(user):
 	user = users.User.get_user(str(user)) \
-		   if not nti_interfaces.IUser.providedBy(user) and user else user
+		   if not IUser.providedBy(user) and user else user
 	return user
 
 def get_usernames_of_dynamic_memberships(user):
@@ -47,7 +46,7 @@ def get_usernames_of_dynamic_memberships(user):
 	return result
 
 def is_indexable(x):
-	return search_interfaces.ITypeResolver(x, None) is not None
+	return ITypeResolver(x, None) is not None
 
 def queue_length(queue=None):
 	queue = queue if queue is not None else search_queue()
@@ -60,7 +59,7 @@ def queue_length(queue=None):
 
 def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True):
 	ids = component.getUtility(zope.intid.IIntIds)
-	catalog = component.getUtility(interfaces.ISearchCatalog)
+	catalog = component.getUtility(ISearchCatalog)
 
 	queue = search_queue()
 	if sync_queue and queue.syncQueue():

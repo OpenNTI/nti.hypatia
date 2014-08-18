@@ -19,23 +19,28 @@ from hypatia.text.parsetree import ParseError
 
 from nti.contentprocessing import rank_words
 
-from nti.contentsearch import common
-from nti.contentsearch import constants
-from nti.contentsearch import discriminators
-from nti.contentsearch import search_results
-from nti.contentsearch import interfaces as search_interfaces
+from nti.contentsearch.constants import content_
+from nti.contentsearch.discriminators import get_acl
+from nti.contentsearch.interfaces import ISearchQuery
+from nti.contentsearch.discriminators import query_object
+from nti.contentsearch.common import get_ugd_indexable_types
+from nti.contentsearch.interfaces import IEntityIndexController
+from nti.contentsearch.search_results import get_or_create_search_results
+from nti.contentsearch.search_results import get_or_create_suggest_results
+from nti.contentsearch.search_results import get_or_create_suggest_and_search_results
 
-from nti.dataserver import interfaces as nti_interfaces
+from nti.dataserver.interfaces import IUser
+from nti.dataserver.interfaces import IDeletedObjectPlaceholder
+
+from .catalog import SearchCatalogQuery
+from .interfaces import ISearchQueryParser
 
 from . import search_queue
 from . import search_catalog
-from . import interfaces as hypatia_interfaces
 from . import get_usernames_of_dynamic_memberships
 
-from .catalog import SearchCatalogQuery
-
-@component.adapter(nti_interfaces.IUser)
-@interface.implementer(search_interfaces.IEntityIndexController)
+@component.adapter(IUser)
+@interface.implementer(IEntityIndexController)
 class _HypatiaUserIndexController(object):
 
 	__slots__ = ('entity', 'memberships')
@@ -51,13 +56,13 @@ class _HypatiaUserIndexController(object):
 	def verify_access(self, obj):
 		result = obj.isSharedDirectlyWith(self.entity)
 		if not result:
-			acl = set(discriminators.get_acl(obj, ()))
+			acl = set(get_acl(obj, ()))
 			result = self.memberships.intersection(acl)
-		result = result and not nti_interfaces.IDeletedObjectPlaceholder.providedBy(obj)
+		result = result and not IDeletedObjectPlaceholder.providedBy(obj)
 		return result
 
 	def get_object(self, uid):
-		result = discriminators.query_object(uid)
+		result = query_object(uid)
 		if result is None:
 			logger.debug('Could not find object with id %r' % uid)
 			try:
@@ -79,17 +84,16 @@ class _HypatiaUserIndexController(object):
 
 	@metricmethod
 	def do_search(self, query, results):
-		query = search_interfaces.ISearchQuery(query)
+		query = ISearchQuery(query)
 		if query.is_empty:
 			return results
 
 		searchOn = set(query.searchOn or ())
-		if searchOn and not searchOn.intersection(common.get_ugd_indexable_types()):
+		if searchOn and not searchOn.intersection(get_ugd_indexable_types()):
 			return results
 
 		# parse catalog
-		parser = component.getUtility(hypatia_interfaces.ISearchQueryParser,
-									  name=query.language)
+		parser = component.getUtility(ISearchQueryParser, name=query.language)
 		parsed_query = parser.parse(query, self.entity)
 
 		cq = SearchCatalogQuery(search_catalog(), query)
@@ -108,19 +112,19 @@ class _HypatiaUserIndexController(object):
 		return results
 
 	def search(self, query, store=None, **kwargs):
-		query = search_interfaces.ISearchQuery(query)
-		store = search_results.get_or_create_search_results(query, store)
+		query = ISearchQuery(query)
+		store = get_or_create_search_results(query, store)
 		return self.do_search(query, store)
 		
 	def suggest(self, query, store=None, **kwargs):
-		query = search_interfaces.ISearchQuery(query)
-		results = search_results.get_or_create_suggest_results(query, store)
+		query = ISearchQuery(query)
+		results = get_or_create_suggest_results(query, store)
 		if query.is_empty:
 			return results
 
 		threshold = query.threshold
 		prefix = query.prefix or len(query.term)
-		textfield = search_catalog()[constants.content_]  # lexicon is shared
+		textfield = search_catalog()[content_]  # lexicon is shared
 		
 		words = textfield.lexicon.get_similiar_words(term=query.term,
 												  	 threshold=threshold,
@@ -129,8 +133,8 @@ class _HypatiaUserIndexController(object):
 		return results
 
 	def suggest_and_search(self, query, store=None, **kwargs):
-		query = search_interfaces.ISearchQuery(query)
-		store = search_results.get_or_create_suggest_and_search_results(query, store)
+		query = ISearchQuery(query)
+		store = get_or_create_suggest_and_search_results(query, store)
 		if ' ' in query.term or query.IsPrefixSearch or query.IsPhraseSearch:
 			results = self.do_search(query, store)
 		else:

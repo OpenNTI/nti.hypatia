@@ -23,7 +23,8 @@ from ZODB.POSException import ConflictError
 
 from redis.connection import ConnectionError
 
-from nti.dataserver import interfaces as nti_interfaces
+from nti.dataserver.interfaces import IRedisClient
+from nti.dataserver.interfaces import IDataserverTransactionRunner
 
 from nti.hypatia import LOCK_NAME
 from nti.hypatia import process_queue
@@ -65,7 +66,7 @@ def process_index_msgs(lockname, limit=DEFAULT_QUEUE_LIMIT, use_trx_runner=True,
 				runner = functools.partial(process_queue, limit=limit)
 				if use_trx_runner:
 					transaction_runner = \
-						component.getUtility(nti_interfaces.IDataserverTransactionRunner)
+						component.getUtility(IDataserverTransactionRunner)
 					result = transaction_runner(runner, retries=1, sleep=1)
 				else:
 					result = runner()
@@ -99,7 +100,7 @@ class IndexReactor(object):
 		if limit and limit != DEFAULT_QUEUE_LIMIT:
 			self.limit = limit
 		# get locking client
-		self.lock_client = component.getUtility(nti_interfaces.IRedisClient) \
+		self.lock_client = component.getUtility(IRedisClient) \
 						   if use_redis else _MockLockingClient()
 
 	def __repr__(self):

@@ -16,17 +16,21 @@ from zope.container import contained
 from zc.catalogqueue.queue import CatalogQueue
 from zc.catalogqueue.CatalogEventQueue import CatalogEventQueue
 
-from . import interfaces as hypatia_interfaces
+from .interfaces import ISearchCatalogQueue
+from .interfaces import ISearchCatalogEventQueue
 
-@interface.implementer(hypatia_interfaces.ISearchCatalogEventQueue)
-class SearchCatalogEventQueue(CatalogEventQueue, contained.Contained):
+@interface.implementer(ISearchCatalogEventQueue)
+class SearchCatalogEventQueue(contained.Contained, CatalogEventQueue):
 	pass
 
-@interface.implementer(hypatia_interfaces.ISearchCatalogQueue)
-class SearchCatalogQueue(CatalogQueue, contained.Contained):
+@interface.implementer(ISearchCatalogQueue)
+class SearchCatalogQueue(contained.Contained, CatalogQueue):
 
 	def __init__(self, buckets=1009):
 		CatalogQueue.__init__(self, buckets=0)
+		self._reset(buckets)
+
+	def _reset(self, buckets=1009):
 		self._queues = list()
 		self._buckets = buckets
 		for i in xrange(buckets):
@@ -34,7 +38,7 @@ class SearchCatalogQueue(CatalogQueue, contained.Contained):
 			queue.__name__ = str(i)
 			queue.__parent__ = self
 			self._queues.append(queue)
-
+			
 	@property
 	def buckets(self):
 		return self._buckets
@@ -60,6 +64,9 @@ class SearchCatalogQueue(CatalogQueue, contained.Contained):
 	sync = sync_queue = syncQueue
 
 	changeLength = CatalogQueue._change_length
+
+	def empty(self):
+		self._reset(self, buckets=self._buckets)
 
 	def __getitem__(self, idx):
 		return self._queues[idx]
