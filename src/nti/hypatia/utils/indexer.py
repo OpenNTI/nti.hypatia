@@ -18,17 +18,21 @@ import signal
 import argparse
 
 import zope.exceptions
+import zope.browserpage
+
+from zope.container.contained import Contained
 from zope.configuration import xmlconfig, config
 from zope.dottedname import resolve as dottedname
 
+from z3c.autoinclude.zcml import includePluginsDirective
+
 from nti.dataserver.utils import run_with_dataserver
 
-from nti.hypatia import reactor
-from nti.hypatia import interfaces as hypatia_interfaces
-
-MIN_INTERVAL = reactor.MIN_INTERVAL
-MAX_INTERVAL = reactor.MAX_INTERVAL
-DEFAULT_INTERVAL = reactor.DEFAULT_INTERVAL
+from nti.hypatia.reactor import IndexReactor
+from nti.hypatia.reactor import MIN_INTERVAL
+from nti.hypatia.reactor import MAX_INTERVAL
+from nti.hypatia.reactor import DEFAULT_INTERVAL
+from nti.hypatia.interfaces import DEFAULT_QUEUE_LIMIT
 
 def sigint_handler(*args):
 	logger.info("Shutting down %s", os.getpid())
@@ -39,6 +43,17 @@ def handler(*args):
 
 signal.signal(signal.SIGINT, sigint_handler)
 signal.signal(signal.SIGTERM, handler)
+
+# package loader info
+
+class PluginPoint(Contained):
+
+	def __init__(self, name):
+		self.__name__ = name
+
+PP_APP = PluginPoint('nti.app')
+PP_APP_SITES = PluginPoint('nti.app.sites')
+PP_APP_PRODUCTS = PluginPoint('nti.app.products')
 
 def main():
 	arg_parser = argparse.ArgumentParser(description="Index processor")
@@ -60,7 +75,7 @@ def main():
 							 dest='limit',
 							 help="Queue limit",
 							 type=int,
-							 default=hypatia_interfaces.DEFAULT_QUEUE_LIMIT)
+							 default=DEFAULT_QUEUE_LIMIT)
 	arg_parser.add_argument('--redis', help="Use redis lock", action='store_true',
 							 dest='redis')
 
@@ -79,8 +94,6 @@ def main():
 						function=lambda: _process_args(args))
 
 def _create_context(env_dir, devmode=False):
-	env_dir = os.path.expanduser(env_dir)
-
 	etc = os.getenv('DATASERVER_ETC_DIR') or os.path.join(env_dir, 'etc')
 	etc = os.path.expanduser(etc)
 
@@ -89,7 +102,7 @@ def _create_context(env_dir, devmode=False):
 
 	if devmode:
 		context.provideFeature("devmode")
-
+		
 	slugs = os.path.join(etc, 'package-includes')
 	if os.path.exists(slugs) and os.path.isdir(slugs):
 		package = dottedname.resolve('nti.dataserver')
@@ -97,6 +110,15 @@ def _create_context(env_dir, devmode=False):
 		xmlconfig.include(context, files=os.path.join(slugs, '*.zcml'),
 						  package='nti.appserver')
 
+	# Include zope.browserpage.meta.zcm for tales:expressiontype
+	# before including the products
+	xmlconfig.include(context, file="meta.zcml", package=zope.browserpage)
+
+	# include plugins
+	includePluginsDirective(context, PP_APP)
+	includePluginsDirective(context, PP_APP_SITES)
+	includePluginsDirective(context, PP_APP_PRODUCTS)
+	
 	return context
 
 def _process_args(args):
@@ -118,7 +140,7 @@ def _process_args(args):
 	ei = '%(asctime)s %(levelname)-5.5s [%(name)s][%(thread)d][%(threadName)s] %(message)s'
 	logging.root.handlers[0].setFormatter(zope.exceptions.log.Formatter(ei))
 
-	target = reactor.IndexReactor(mintime, maxtime, limit, args.redis)
+	target = IndexReactor(mintime, maxtime, limit, args.redis)
 	result = target(time.sleep)
 	sys.exit(result)
 

@@ -115,7 +115,7 @@ class IndexReactor(object):
 		return self
 	
 	def run(self, sleep=gevent.sleep):
-		random.seed()
+		generator = random.Random()
 		self.stop = False
 		self.pid = os.getpid()
 		self.start_time = time.time()
@@ -127,12 +127,14 @@ class IndexReactor(object):
 				start = time.time()
 				try:
 					if not self.stop:
-						result = process_index_msgs(LOCK_NAME, batch_size,
+						result = process_index_msgs(LOCK_NAME,
+													batch_size,
 													client=self.lock_client)
 						duration = time.time() - start
 						if result == 0: # no work
 							batch_size = self.limit  # reset to default
-							secs = random.randint(self.min_wait_time, self.max_wait_time)
+							secs = generator.randint(self.min_wait_time, 
+													 self.max_wait_time)
 							duration = secs
 						elif result < 0:  # conflict error/exception
 							factor = 0.33 if result == -1 else 0.2
@@ -141,13 +143,14 @@ class IndexReactor(object):
 						elif duration < MAX_INTERVAL:
 							batch_size = int(batch_size * 1.5)
 							half = int(duration / 2.0)
-							secs = random.randint(self.min_wait_time,
-												  max(self.min_wait_time, half))
+							secs = generator.randint(self.min_wait_time,
+												  	 max(self.min_wait_time, half))
 							duration = secs
 						else:
 							half = batch_size * .5
 							batch_size = max(MIN_BATCH_SIZE, int(half / duration))
-							secs = random.randint(self.min_wait_time, self.max_wait_time)
+							secs = generator.randint(self.min_wait_time, 
+													 self.max_wait_time)
 							duration = secs
 							
 						logger.log(loglevels.TRACE, "Sleeping %s(secs). Batch size %s",
