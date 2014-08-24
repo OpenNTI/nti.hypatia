@@ -17,8 +17,9 @@ from hypatia.query import Contains
 from hypatia.text.parsetree import ParseError
 
 from nti.contentsearch.interfaces import ISearchQuery
-from nti.contentsearch.constants import replacementContent_
 from nti.contentsearch.content_utils import is_covered_by_ngram_computer
+
+from nti.contentsearch.constants import replacementContent_
 from nti.contentsearch.constants import content_, ngrams_, title_, tags_, keywords_
 from nti.contentsearch.constants import acl_, redactionExplanation_, type_, creator_
 

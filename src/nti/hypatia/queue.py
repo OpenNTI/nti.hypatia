@@ -11,7 +11,7 @@ logger = __import__('logging').getLogger(__name__)
 import BTrees
 
 from zope import interface
-from zope.container import contained
+from zope.container.contained import Contained
 
 from zc.catalogqueue.queue import CatalogQueue
 from zc.catalogqueue.CatalogEventQueue import CatalogEventQueue
@@ -20,11 +20,11 @@ from .interfaces import ISearchCatalogQueue
 from .interfaces import ISearchCatalogEventQueue
 
 @interface.implementer(ISearchCatalogEventQueue)
-class SearchCatalogEventQueue(contained.Contained, CatalogEventQueue):
+class SearchCatalogEventQueue(Contained, CatalogEventQueue):
 	pass
 
 @interface.implementer(ISearchCatalogQueue)
-class SearchCatalogQueue(contained.Contained, CatalogQueue):
+class SearchCatalogQueue(Contained, CatalogQueue):
 
 	def __init__(self, buckets=1009):
 		CatalogQueue.__init__(self, buckets=0)

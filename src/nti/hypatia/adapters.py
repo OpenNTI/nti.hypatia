@@ -19,11 +19,13 @@ from hypatia.text.parsetree import ParseError
 
 from nti.contentprocessing import rank_words
 
-from nti.contentsearch.constants import content_
 from nti.contentsearch.discriminators import get_acl
-from nti.contentsearch.interfaces import ISearchQuery
 from nti.contentsearch.discriminators import query_object
+
+from nti.contentsearch.constants import content_
 from nti.contentsearch.common import get_ugd_indexable_types
+
+from nti.contentsearch.interfaces import ISearchQuery
 from nti.contentsearch.interfaces import IEntityIndexController
 from nti.contentsearch.search_results import get_or_create_search_results
 from nti.contentsearch.search_results import get_or_create_suggest_results

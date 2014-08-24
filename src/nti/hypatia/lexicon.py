@@ -10,13 +10,13 @@ logger = __import__('logging').getLogger(__name__)
 
 from zope import interface
 
-from hypatia.text import interfaces as text_interfaces
+from hypatia.text.interfaces import IPipelineElement
 from hypatia.text.lexicon import Lexicon, CaseNormalizer, Splitter
 
-from . import levenshtein
-from . import interfaces as hypatia_interfaces
+from .interfaces import ISearchLexicon
+from .levenshtein import ratio as levenshtein_ratio
 
-@interface.implementer(text_interfaces.IPipelineElement)
+@interface.implementer(IPipelineElement)
 class StopWordRemover(object):
 	"""
 	deprecated pipeline. Stop word removal is handled in
@@ -28,7 +28,7 @@ class StopWordRemover(object):
 	def process(self, words):
 		return words
 
-@interface.implementer(hypatia_interfaces.ISearchLexicon)
+@interface.implementer(ISearchLexicon)
 class SearchLexicon(Lexicon):
 
 	def get_similiar_words(self, term, threshold=0.75, common_length=-1):
@@ -38,9 +38,9 @@ class SearchLexicon(Lexicon):
 		else:
 			words = self.words()
 		for word in words:
-			ratio = levenshtein.ratio(word, term)
-			if ratio > threshold:
-				yield (word, ratio)
+			value = levenshtein_ratio(word, term)
+			if value > threshold:
+				yield (word, value)
 
 	getSimiliarWords = get_similiar_words
 
