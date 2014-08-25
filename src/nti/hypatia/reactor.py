@@ -38,8 +38,13 @@ DEFAULT_INTERVAL = 30
 
 class _MockLockingClient(object):
 
-	__slots__ = ()
-
+	singleton = None
+	
+	def __new__(cls, *args, **kwargs):
+		if not cls.singleton:
+			cls.singleton = super(_MockLockingClient, cls).__new__(cls)
+		return cls.singleton
+	
 	def lock(self, *args, **kwargs):
 		return self
 
@@ -49,8 +54,8 @@ class _MockLockingClient(object):
 	def release(self, *args, **kwargs):
 		pass
 
-def process_index_msgs(lockname, limit=DEFAULT_QUEUE_LIMIT, use_trx_runner=True,
-					   client=None):
+def process_index_msgs(limit=DEFAULT_QUEUE_LIMIT, use_trx_runner=True,
+					   client=None, lockname=LOCK_NAME):
 	client = client if client is not None else _MockLockingClient()
 	try:
 		lock = client.lock(lockname, MAX_INTERVAL)
@@ -67,7 +72,7 @@ def process_index_msgs(lockname, limit=DEFAULT_QUEUE_LIMIT, use_trx_runner=True,
 				if use_trx_runner:
 					transaction_runner = \
 						component.getUtility(IDataserverTransactionRunner)
-					result = transaction_runner(runner, retries=1, sleep=1)
+					result = transaction_runner(runner, retries=2, sleep=1)
 				else:
 					result = runner()
 			except ConflictError, e:
@@ -89,7 +94,7 @@ class IndexReactor(object):
 	min_wait_time = 10
 	max_wait_time = 30
 	limit = DEFAULT_QUEUE_LIMIT
-
+	
 	processor = pid = None
 
 	def __init__(self, min_time=None, max_time=None, limit=None, use_redis=False):
@@ -99,9 +104,11 @@ class IndexReactor(object):
 			self.max_wait_time = max_time
 		if limit and limit != DEFAULT_QUEUE_LIMIT:
 			self.limit = limit
-		# get locking client
-		self.lock_client = component.getUtility(IRedisClient) \
-						   if use_redis else _MockLockingClient()
+		
+		if not use_redis:
+			self.lock_client = _MockLockingClient()
+		else:
+			self.lock_client = component.getUtility(IRedisClient) 
 
 	def __repr__(self):
 		return "%s" % (self.__class__.__name__.lower())
@@ -115,20 +122,19 @@ class IndexReactor(object):
 		return self
 	
 	def run(self, sleep=gevent.sleep):
-		generator = random.Random()
+		result = 0
 		self.stop = False
 		self.pid = os.getpid()
+		generator = random.Random()
 		self.start_time = time.time()
-		result = 0
 		try:
-			logger.info("Index reactor started")
 			batch_size = self.limit
+			logger.info("Index reactor started")
 			while not self.stop:
 				start = time.time()
 				try:
 					if not self.stop:
-						result = process_index_msgs(LOCK_NAME,
-													batch_size,
+						result = process_index_msgs(batch_size,
 													client=self.lock_client)
 						duration = time.time() - start
 						if result == 0: # no work
