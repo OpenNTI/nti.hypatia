@@ -31,6 +31,8 @@ from nti.dataserver.utils import run_with_dataserver
 from nti.hypatia.reactor import IndexReactor
 from nti.hypatia.reactor import MIN_INTERVAL
 from nti.hypatia.reactor import MAX_INTERVAL
+from nti.hypatia.reactor import DEFAULT_SLEEP
+from nti.hypatia.reactor import DEFAULT_RETRIES
 from nti.hypatia.reactor import DEFAULT_INTERVAL
 from nti.hypatia.interfaces import DEFAULT_QUEUE_LIMIT
 
@@ -59,8 +61,16 @@ def main():
 	arg_parser = argparse.ArgumentParser(description="Index processor")
 	arg_parser.add_argument('-v', '--verbose', help="Be verbose", action='store_true',
 							 dest='verbose')
-	arg_parser.add_argument('-d', '--devmode', help="Dev mode", action='store_true',
-							 dest='devmode')
+	arg_parser.add_argument('-r', '--retries',
+							 dest='retries',
+							 help="Transaction runner retries",
+							 type=int,
+							 default=DEFAULT_RETRIES)
+	arg_parser.add_argument('-s', '--sleep',
+							 dest='sleep',
+							 help="Transaction runner sleep time (secs)",
+							 type=float,
+							 default=DEFAULT_SLEEP)
 	arg_parser.add_argument('-m', '--mintime',
 							 dest='mintime',
 							 help="Min poll time interval (secs)",
@@ -84,7 +94,7 @@ def main():
 	if not env_dir or not os.path.exists(env_dir) and not os.path.isdir(env_dir):
 		raise IOError("Invalid dataserver environment root directory")
 
-	context = _create_context(env_dir, args.devmode)
+	context = _create_context(env_dir)
 	conf_packages = ('nti.appserver', 'nti.hypatia')
 	run_with_dataserver(environment_dir=env_dir,
 						xmlconfig_packages=conf_packages,
@@ -128,19 +138,23 @@ def _process_args(args):
 	maxtime = args.maxtime
 	assert mintime <= maxtime and mintime > 0
 
-	if args.devmode:
-		logging.root.setLevel(logging.DEBUG)
-
 	limit = args.limit
 	assert limit > 0
+	
+	retries = args.retries
+	assert retries >= 1 and retries <= 5
 
+	sleep = args.sleep
+	assert sleep >= 0 and sleep <= 10
+	
 	mintime = max(min(mintime, MAX_INTERVAL), MIN_INTERVAL)
 	maxtime = max(min(maxtime, MAX_INTERVAL), MIN_INTERVAL)
 
 	ei = '%(asctime)s %(levelname)-5.5s [%(name)s][%(thread)d][%(threadName)s] %(message)s'
 	logging.root.handlers[0].setFormatter(zope.exceptions.log.Formatter(ei))
 
-	target = IndexReactor(mintime, maxtime, limit, args.redis)
+	target = IndexReactor(min_time=mintime, max_time=maxtime, limit=limit,
+						  retries=retries, sleep=sleep, use_redis=args.redis)
 	result = target(time.sleep)
 	sys.exit(result)
 

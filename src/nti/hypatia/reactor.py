@@ -34,6 +34,9 @@ from nti.hypatia.interfaces import DEFAULT_QUEUE_LIMIT
 MIN_INTERVAL = 5
 MAX_INTERVAL = 60
 MIN_BATCH_SIZE = 10
+
+DEFAULT_SLEEP = 1
+DEFAULT_RETRIES = 2
 DEFAULT_INTERVAL = 30
 
 class _MockLockingClient(object):
@@ -54,8 +57,10 @@ class _MockLockingClient(object):
 	def release(self, *args, **kwargs):
 		pass
 
-def process_index_msgs(limit=DEFAULT_QUEUE_LIMIT, use_trx_runner=True,
+def process_index_msgs(limit=DEFAULT_QUEUE_LIMIT, use_trx_runner=True, 
+					   retries=DEFAULT_RETRIES, sleep=DEFAULT_SLEEP,
 					   client=None, lockname=LOCK_NAME):
+
 	client = client if client is not None else _MockLockingClient()
 	try:
 		lock = client.lock(lockname, MAX_INTERVAL)
@@ -72,7 +77,7 @@ def process_index_msgs(limit=DEFAULT_QUEUE_LIMIT, use_trx_runner=True,
 				if use_trx_runner:
 					transaction_runner = \
 						component.getUtility(IDataserverTransactionRunner)
-					result = transaction_runner(runner, retries=2, sleep=1)
+					result = transaction_runner(runner, retries=retries, sleep=sleep)
 				else:
 					result = runner()
 			except ConflictError, e:
@@ -89,22 +94,37 @@ def process_index_msgs(limit=DEFAULT_QUEUE_LIMIT, use_trx_runner=True,
 @interface.implementer(IIndexReactor)
 class IndexReactor(object):
 
-	stop = False
-	start_time = 0
+	# transaction runner
+	sleep = DEFAULT_SLEEP
+	retries = DEFAULT_RETRIES
+	# wait time
 	min_wait_time = 10
 	max_wait_time = 30
+	# batch size
 	limit = DEFAULT_QUEUE_LIMIT
 	
+	stop = False
+	start_time = 0
 	processor = pid = None
 
-	def __init__(self, min_time=None, max_time=None, limit=None, use_redis=False):
+	def __init__(self, min_time=None, max_time=None, limit=None, 
+				 retries=None, sleep=None, use_redis=False):
+		
 		if min_time:
 			self.min_wait_time = min_time
+		
 		if max_time:
 			self.max_wait_time = max_time
+			
 		if limit and limit != DEFAULT_QUEUE_LIMIT:
 			self.limit = limit
 		
+		if sleep:
+			self.sleep = sleep
+			
+		if retries:
+			self.retries = retries
+			
 		if not use_redis:
 			self.lock_client = _MockLockingClient()
 		else:
@@ -135,6 +155,8 @@ class IndexReactor(object):
 				try:
 					if not self.stop:
 						result = process_index_msgs(batch_size,
+												 	sleep=self.sleep,
+												 	retries=self.retries,
 													client=self.lock_client)
 						duration = time.time() - start
 						if result == 0: # no work
