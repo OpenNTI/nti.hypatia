@@ -25,10 +25,6 @@
 	<subscriber handler=".subscribers._object_modified"
 				for="* zope.lifecycleevent.interfaces.IObjectModifiedEvent"/>
 
-	<configure zcml:condition="have testmode">
-		<subscriber handler=".subscribers.requestIndexation" />
-	</configure>
-
 	<subscriber handler=".subscribers.onChange" />
 
 	<!-- Adapters -->

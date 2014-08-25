@@ -28,7 +28,6 @@ from nti.dataserver.interfaces import SC_CREATED, SC_SHARED, SC_MODIFIED, SC_DEL
 
 from . import is_indexable
 from . import search_queue
-from . import process_queue
 from . import search_catalog
 
 def add_2_queue(obj):
@@ -124,19 +123,3 @@ def onChange(event):
 			queue_added(changeObject)
 
 	return should_process
-
-# test mode
-
-from pyramid.interfaces import INewRequest
-
-@component.adapter(INewRequest)
-def requestIndexation(event):
-	def _process_event():
-		transaction_runner = \
-			component.getUtility(IDataserverTransactionRunner)
-		func = functools.partial(process_queue, limit=-1)
-		transaction_runner(func)
-		return True
-
-	transaction.get().addAfterCommitHook(
-					lambda success: success and _process_event())
