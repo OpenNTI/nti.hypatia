@@ -3,7 +3,7 @@
 """
 generation 6.
 
-$Id$
+.. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
@@ -15,9 +15,9 @@ generation = 6
 from zope import component
 from zope.component.hooks import site, setHooks
 
-from nti.contentsearch.constants import (createdTime_, lastModified_)
+from nti.contentsearch.constants import createdTime_, lastModified_
 
-from .. import interfaces as hypatia_interfaces
+from ..interfaces import ISearchCatalog
 
 def do_evolve(context):
 	setHooks()
@@ -31,7 +31,7 @@ def do_evolve(context):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
 				"Hooks not installed?"
 
-		catalog = lsm.getUtility(provided=hypatia_interfaces.ISearchCatalog)
+		catalog = lsm.getUtility(provided=ISearchCatalog)
 		if createdTime_ in catalog:
 			del catalog[createdTime_]
 

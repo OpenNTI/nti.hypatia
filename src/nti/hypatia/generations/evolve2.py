@@ -3,7 +3,7 @@
 """
 generation 2.
 
-$Id$
+.. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
@@ -18,8 +18,9 @@ from zope.component.hooks import site, setHooks
 
 from zc import intid as zc_intid
 
-from .. import utils
 from .. import search_queue
+
+from ..utils import all_indexable_objects_iids
 
 def do_evolve(context, reg_intid=True):
 	setHooks()
@@ -41,7 +42,7 @@ def do_evolve(context, reg_intid=True):
 
 		total = 0
 
-		for iid, _ in utils.all_indexable_objects_iids():
+		for iid, _ in all_indexable_objects_iids():
 			try:
 				search_queue().add(iid)
 				total += 1

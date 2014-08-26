@@ -3,7 +3,7 @@
 """
 generation 3.
 
-$Id$
+.. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
@@ -19,11 +19,11 @@ from zope.component.hooks import site, setHooks
 
 from hypatia.field import FieldIndex
 
-from nti.contentsearch import discriminators
 from nti.contentsearch.constants import creator_
+from nti.contentsearch.discriminators import get_creator
 
-from .. import utils
-from .. import interfaces as hypatia_interfaces
+from ..interfaces import ISearchCatalog
+from ..utils import all_indexable_objects_iids
 
 def do_evolve(context):
 	setHooks()
@@ -32,7 +32,7 @@ def do_evolve(context):
 	ds_folder = root['nti.dataserver']
 
 	lsm = ds_folder.getSiteManager()
-	catalog  = lsm.getUtility(provided=hypatia_interfaces.ISearchCatalog)
+	catalog  = lsm.getUtility(provided=ISearchCatalog)
 		
 	if creator_ in catalog:
 		return 0
@@ -42,13 +42,13 @@ def do_evolve(context):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
 				"Hooks not installed?"
 
-		index = FieldIndex(discriminator=discriminators.get_creator,
+		index = FieldIndex(discriminator=get_creator,
 						   family=BTrees.family64)
 		catalog[creator_] = index
 
 		logger.info('Hypatia evolution gen 3 started')
 
-		for iid, obj in utils.all_indexable_objects_iids():
+		for iid, obj in all_indexable_objects_iids():
 			index.index_doc(iid, obj)
 			total += 1
 

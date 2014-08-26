@@ -3,7 +3,7 @@
 """
 generation 4.
 
-$Id$
+.. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
@@ -21,9 +21,12 @@ from ZODB.POSException import POSKeyError
 
 from nti.contentsearch.constants import type_
 
-from .. import utils
-from .. import catalog as hypatia_catalog
-from .. import interfaces as hypatia_interfaces
+from ..catalog import SearchCatalog
+from ..utils import all_indexable_objects_iids
+
+from ..interfaces import ISearchCatalog
+from ..interfaces import ISearchCatalogQueue
+
 
 def do_evolve(context):
 	setHooks()
@@ -39,17 +42,17 @@ def do_evolve(context):
 				"Hooks not installed?"
 
 		# unregister
-		old_catalog = lsm.getUtility(provided=hypatia_interfaces.ISearchCatalog)
+		old_catalog = lsm.getUtility(provided=ISearchCatalog)
 		intids.unregister(old_catalog)
-		lsm.unregisterUtility(old_catalog, provided=hypatia_interfaces.ISearchCatalog)
+		lsm.unregisterUtility(old_catalog, provided=ISearchCatalog)
 		old_catalog.__parent__ = None
 
 		# recreate
-		new_catalog = hypatia_catalog.SearchCatalog()
+		new_catalog = SearchCatalog()
 		new_catalog.__parent__ = ds_folder
 		new_catalog.__name__ = '++etc++hypatia++catalog'
 		intids.register(new_catalog)
-		lsm.registerUtility(new_catalog, provided=hypatia_interfaces.ISearchCatalog)
+		lsm.registerUtility(new_catalog, provided=ISearchCatalog)
 
 		# reset indices
 		for k, v in old_catalog.items():
@@ -58,8 +61,8 @@ def do_evolve(context):
 		# search anything that has not been indexed
 		total = 0
 		type_index = new_catalog[type_]
-		search_queue = lsm.getUtility(provided=hypatia_interfaces.ISearchCatalogQueue)
-		for iid, _ in utils.all_indexable_objects_iids():
+		search_queue = lsm.getUtility(provided=ISearchCatalogQueue)
+		for iid, _ in all_indexable_objects_iids():
 			try:
 				if not type_index.has_doc(iid):
 					search_queue.add(iid)

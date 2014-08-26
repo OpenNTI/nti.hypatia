@@ -3,7 +3,7 @@
 """
 generation 5.
 
-$Id$
+.. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
@@ -17,8 +17,8 @@ import zope.intid
 from zope import component
 from zope.component.hooks import site, setHooks
 
-from .. import queue as hypatia_queue
-from .. import interfaces as hypatia_interfaces
+from ..queue import SearchCatalogQueue
+from ..interfaces import ISearchCatalogQueue
 
 def do_evolve(context):
 	setHooks()
@@ -34,17 +34,17 @@ def do_evolve(context):
 				"Hooks not installed?"
 
 		# unregister
-		old_catalog_queue = lsm.getUtility(provided=hypatia_interfaces.ISearchCatalogQueue)
+		old_catalog_queue = lsm.getUtility(provided=ISearchCatalogQueue)
 		intids.unregister(old_catalog_queue)
-		lsm.unregisterUtility(old_catalog_queue, provided=hypatia_interfaces.ISearchCatalogQueue)
+		lsm.unregisterUtility(old_catalog_queue, provided=ISearchCatalogQueue)
 		old_catalog_queue.__parent__ = None
 
 		# recreate
-		new_catalog_queue = hypatia_queue.SearchCatalogQueue(old_catalog_queue._buckets)
+		new_catalog_queue = SearchCatalogQueue(old_catalog_queue._buckets)
 		new_catalog_queue.__parent__ = ds_folder
 		new_catalog_queue.__name__ = '++etc++hypatia++catalogqueue'
 		intids.register(new_catalog_queue)
-		lsm.registerUtility(new_catalog_queue, provided=hypatia_interfaces.ISearchCatalogQueue)
+		lsm.registerUtility(new_catalog_queue, provided=ISearchCatalogQueue)
 
 		# update new event queues
 		for idx, old_event_queue in enumerate(old_catalog_queue._queues):

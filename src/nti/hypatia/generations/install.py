@@ -3,7 +3,7 @@
 """
 schema generation installation.
 
-$Id$
+.. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
@@ -16,10 +16,12 @@ from zope.generations.generations import SchemaManager
 
 import zope.intid
 
-from .. import queue as hypatia_queue
-from .. import catalog as hypatia_catalog
-from .. import lexicon as hypatia_lexicon
-from .. import interfaces as hypatia_interfaces
+from ..catalog import create_catalog
+from ..lexicon import defaultLexicon
+from ..queue import SearchCatalogQueue
+
+from ..interfaces import ISearchCatalog
+from ..interfaces import ISearchCatalogQueue
 
 from . import evolve2
 
@@ -46,13 +48,13 @@ def install_hypatia(context):
 	lsm = dataserver_folder.getSiteManager()
 	intids = lsm.getUtility(zope.intid.IIntIds)
 
-	lexicon = hypatia_lexicon.defaultLexicon()
+	lexicon = defaultLexicon()
 
-	catalog = hypatia_catalog.create_catalog(lexicon)
+	catalog = create_catalog(lexicon)
 	catalog.__parent__ = dataserver_folder
 	catalog.__name__ = '++etc++hypatia++catalog'
 	intids.register(catalog)
-	lsm.registerUtility(catalog, provided=hypatia_interfaces.ISearchCatalog)
+	lsm.registerUtility(catalog, provided=ISearchCatalog)
 
 	return catalog
 
@@ -64,10 +66,10 @@ def install_queue(context):
 	lsm = dataserver_folder.getSiteManager()
 	intids = lsm.getUtility(zope.intid.IIntIds)
 
-	queue = hypatia_queue.SearchCatalogQueue()
+	queue = SearchCatalogQueue()
 	queue.__parent__ = dataserver_folder
 	queue.__name__ = '++etc++hypatia++catalogqueue'
 	intids.register(queue)
-	lsm.registerUtility(queue, provided=hypatia_interfaces.ISearchCatalogQueue)
+	lsm.registerUtility(queue, provided=ISearchCatalogQueue)
 
 	return queue
