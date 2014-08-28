@@ -16,7 +16,7 @@ from zope.catalog.interfaces import ICatalog
 
 from ZODB.POSException import POSKeyError
 
-from nti.dataserver import interfaces as nti_interfaces
+from nti.dataserver.interfaces import IDeletedObjectPlaceholder
 from nti.dataserver.metadata_index import CATALOG_NAME as METADATA_CATALOG_NAME
 
 from nti.externalization.oids import to_external_oid
@@ -33,7 +33,7 @@ def all_indexable_objects_iids(users=()):
 			creator = getattr(obj, 'creator', None) or u''
 			username = getattr(creator, 'username', creator).lower()
 			if 	is_indexable(obj) and (not usernames or username in usernames) and \
-				not nti_interfaces.IDeletedObjectPlaceholder.providedBy(obj):
+				not IDeletedObjectPlaceholder.providedBy(obj):
 				yield uid, obj
 		except (POSKeyError, TypeError) as e:
 			logger.error("Ignoring %s(%s); %s", type(obj), uid, e)
@@ -53,7 +53,7 @@ def all_cataloged_objects(users=()):
 			obj = intids.getObject(uid)
 			getattr(obj, 'creator', None)
 			if 	is_indexable(obj) and \
-				not nti_interfaces.IDeletedObjectPlaceholder.providedBy(obj):
+				not IDeletedObjectPlaceholder.providedBy(obj):
 				yield uid, obj
 		except (POSKeyError, TypeError) as e:
 			logger.error("Ignoring %s(%s); %s", type(obj), uid, e)
