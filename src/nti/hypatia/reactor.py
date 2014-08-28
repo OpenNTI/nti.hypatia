@@ -8,6 +8,9 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+from nti.monkey import relstorage_patch_all_except_gevent_on_import
+relstorage_patch_all_except_gevent_on_import.patch()
+
 import os
 import time
 import gevent
@@ -26,10 +29,12 @@ from redis.connection import ConnectionError
 from nti.dataserver.interfaces import IRedisClient
 from nti.dataserver.interfaces import IDataserverTransactionRunner
 
-from nti.hypatia import LOCK_NAME
-from nti.hypatia import process_queue
-from nti.hypatia.interfaces import IIndexReactor
-from nti.hypatia.interfaces import DEFAULT_QUEUE_LIMIT
+from nti.zodb.interfaces import UnableToAcquireCommitLock
+
+from . import LOCK_NAME
+from . import process_queue
+from .interfaces import IIndexReactor
+from .interfaces import DEFAULT_QUEUE_LIMIT
 
 MIN_INTERVAL = 5
 MAX_INTERVAL = 60
@@ -80,7 +85,7 @@ def process_index_msgs(limit=DEFAULT_QUEUE_LIMIT, use_trx_runner=True,
 					result = transaction_runner(runner, retries=retries, sleep=sleep)
 				else:
 					result = runner()
-			except ConflictError, e:
+			except (UnableToAcquireCommitLock, ConflictError) as e:
 				logger.error(e)
 				result = -1
 			except (TypeError, StandardError): # Cache errors?
