@@ -93,11 +93,13 @@ def main():
 
 	context = _create_context(env_dir)
 	conf_packages = ('nti.appserver', 'nti.hypatia')
+
 	run_with_dataserver(environment_dir=env_dir,
 						xmlconfig_packages=conf_packages,
 						verbose=args.verbose,
 						context=context,
 						minimal_ds=True,
+						use_transaction_runner=False,
 						function=lambda: _process_args(args))
 
 def _create_context(env_dir, devmode=False):
