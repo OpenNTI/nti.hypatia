@@ -8,6 +8,8 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+from collections import Mapping
+
 import BTrees
 
 from zope import interface
@@ -19,9 +21,33 @@ from zc.catalogqueue.CatalogEventQueue import CatalogEventQueue
 from .interfaces import ISearchCatalogQueue
 from .interfaces import ISearchCatalogEventQueue
 
+class _ProxyMap(Mapping):
+	
+	__slots__ = ('_data',)
+	
+	def __init__(self, data):
+		self._data = data
+		
+	def __getitem__(self, key):
+		return self._data[key]
+	
+	def __len__(self):
+		return len(self._data)
+	
+	def __iter__(self):
+		return iter(self._data)
+
+	def items(self):
+		for k, v in self._data.items():
+			__traceback_info__ = k,v
+			yield k,v
+		
 @interface.implementer(ISearchCatalogEventQueue)
 class SearchCatalogEventQueue(Contained, CatalogEventQueue):
-	pass
+	
+	def process(self, limit=None):
+		result = super(SearchCatalogEventQueue, self).process(limit)
+		return _ProxyMap(result)
 
 @interface.implementer(ISearchCatalogQueue)
 class SearchCatalogQueue(Contained, CatalogQueue):
