@@ -75,7 +75,7 @@ class TestReactor(unittest.TestCase):
 		user = self._create_user()
 		self._add_notes(user)
 
-		processed = reactor.process_index_msgs("lock", 100, False)
+		processed = reactor.process_index_msgs(100, use_trx_runner=False)
 		assert_that(processed, is_(len(zanpakuto_commands)))
 
 		rim = hypatia_interfaces.IHypatiaUserIndexController(user)

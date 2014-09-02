@@ -68,6 +68,7 @@ class _MockLockingClient(object):
 		pass
 
 def process_index_msgs(limit=DEFAULT_QUEUE_LIMIT, 
+					   use_trx_runner=True,
 					   retries=DEFAULT_RETRIES,
 					   sleep=DEFAULT_SLEEP,
 					   lock_client=None, 
@@ -86,8 +87,11 @@ def process_index_msgs(limit=DEFAULT_QUEUE_LIMIT,
 		if aquired:
 			try:
 				runner = functools.partial(process_queue, limit=limit)
-				transaction_runner = component.getUtility(IDataserverTransactionRunner)
-				result = transaction_runner(runner, retries=retries, sleep=sleep)
+				if use_trx_runner:
+					trx_runner = component.getUtility(IDataserverTransactionRunner)
+					result = trx_runner(runner, retries=retries, sleep=sleep)
+				else:
+					result = runner()
 			except POSKeyError:
 				logger.exception("Cannot index object(s)")
 				result = POS_KEY_ERROR_RT
@@ -165,7 +169,7 @@ class IndexReactor(object):
 				start = time.time()
 				try:
 					if not self.stop:
-						result = process_index_msgs(batch_size,
+						result = process_index_msgs(limit=batch_size,
 												 	sleep=self.sleep,
 												 	retries=self.retries,
 													lock_client=self.lock_client)
