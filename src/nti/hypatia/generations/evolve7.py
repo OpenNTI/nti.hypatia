@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-generation 6.
+generation 7.
 
 .. $Id$
 """
@@ -10,12 +10,18 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-generation = 6
+generation = 7
+
+import zope.intid
 
 from zope import component
 from zope.component.hooks import site, setHooks
 
-from nti.contentsearch.constants import createdTime_, lastModified_
+from ZODB.POSException import POSKeyError
+
+from nti.contentsearch.constants import type_
+
+from nti.dataserver.contenttypes.forums.interfaces import ICommentPost
 
 from ..interfaces import ISearchCatalog
 
@@ -31,17 +37,24 @@ def do_evolve(context):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
 				"Hooks not installed?"
 
+		intids = lsm.getUtility(zope.intid.IIntIds)
+			
+		obj = None
 		catalog = lsm.getUtility(provided=ISearchCatalog)
-		if createdTime_ in catalog:
-			del catalog[createdTime_]
-
-		if lastModified_ in catalog:
-			del catalog[lastModified_]
-
+		type_index = catalog[type_]
+		for uid in list(type_index.indexed()):
+			try:
+				obj = intids.getObject(uid)
+				if ICommentPost.providedBy(obj):
+					type_index.unindex_doc(uid)
+					type_index.index_doc(uid, obj)
+			except POSKeyError:
+				logger.exception("Ignoring broken object %s,%r", uid, obj)
+		
 		logger.info('Hypatia evolution %s done', generation)
 
 def evolve(context):
 	"""
-	Evolve to generation 6 by removing time indices
+	Evolve to generation 7 by changing type for comments
 	"""
 	do_evolve(context)
