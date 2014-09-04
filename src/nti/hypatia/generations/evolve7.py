@@ -32,7 +32,8 @@ def do_evolve(context):
 	ds_folder = root['nti.dataserver']
 
 	lsm = ds_folder.getSiteManager()
-
+	logger.info('Hypatia evolution %s started', generation)
+	
 	with site(ds_folder):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
 				"Hooks not installed?"
@@ -40,17 +41,23 @@ def do_evolve(context):
 		intids = lsm.getUtility(zope.intid.IIntIds)
 			
 		obj = None
+		count = 0
 		catalog = lsm.getUtility(provided=ISearchCatalog)
 		type_index = catalog[type_]
 		for uid in list(type_index.indexed()):
 			try:
-				obj = intids.getObject(uid)
-				if ICommentPost.providedBy(obj):
+				obj = intids.queryObject(uid)
+				if obj is None:
+					catalog.unindex_doc(uid)
+					logger.warn("Unindexing missing object %s", uid)
+				elif ICommentPost.providedBy(obj):
 					type_index.unindex_doc(uid)
 					type_index.index_doc(uid, obj)
+					count += 1
 			except POSKeyError:
 				logger.exception("Ignoring broken object %s,%r", uid, obj)
 		
+		logger.info('%s comment object(s) reindexed', count)
 		logger.info('Hypatia evolution %s done', generation)
 
 def evolve(context):
