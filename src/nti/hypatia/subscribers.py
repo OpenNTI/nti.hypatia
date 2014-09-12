@@ -21,6 +21,7 @@ from nti.contentsearch.discriminators import query_uid
 from nti.dataserver.users import Entity
 from nti.dataserver.interfaces import IUser
 from nti.dataserver.interfaces import IEntity
+from nti.dataserver.interfaces import IReadableShared
 from nti.dataserver.interfaces import IDeletedObjectPlaceholder
 from nti.dataserver.interfaces import ITargetedStreamChangeEvent
 from nti.dataserver.interfaces import IDataserverTransactionRunner
@@ -115,7 +116,8 @@ def onChange(event):
 
 	should_process = IUser.providedBy(entity)
 	if should_process:
-		if changeType in _changeType_events:
+		if 	changeType in _changeType_events and \
+			IReadableShared.providedBy(changeObject):
 			should_process = changeObject.isSharedDirectlyWith(entity)
 
 	if should_process:

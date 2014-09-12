@@ -32,6 +32,7 @@ from nti.contentsearch.search_results import get_or_create_suggest_results
 from nti.contentsearch.search_results import get_or_create_suggest_and_search_results
 
 from nti.dataserver.interfaces import IUser
+from nti.dataserver.interfaces import IReadableShared
 from nti.dataserver.interfaces import IDeletedObjectPlaceholder
 
 from .catalog import SearchCatalogQuery
@@ -56,7 +57,8 @@ class _HypatiaUserIndexController(object):
 		return self.entity.username
 
 	def verify_access(self, obj):
-		result = obj.isSharedDirectlyWith(self.entity)
+		result = obj.isSharedDirectlyWith(self.entity) \
+				 if IReadableShared.providedBy(obj) else False
 		if not result:
 			acl = set(get_acl(obj, ()))
 			result = self.memberships.intersection(acl)
