@@ -48,6 +48,10 @@ class SearchCatalogEventQueue(Contained, CatalogEventQueue):
 	def process(self, limit=None):
 		result = super(SearchCatalogEventQueue, self).process(limit)
 		return _ProxyMap(result)
+	
+	def keys(self):
+		result = list(self._data.keys())
+		return result
 
 @interface.implementer(ISearchCatalogQueue)
 class SearchCatalogQueue(Contained, CatalogQueue):
@@ -94,6 +98,14 @@ class SearchCatalogQueue(Contained, CatalogQueue):
 	def empty(self):
 		self._reset(self, buckets=self._buckets)
 
+	def iterkeys(self):
+		for queue in self._queues:
+			for key in queue.keys():
+				yield key
+	
+	def keys(self):
+		return list(self.iterkeys())
+	
 	def __getitem__(self, idx):
 		return self._queues[idx]
 
