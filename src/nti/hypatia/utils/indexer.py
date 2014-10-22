@@ -17,23 +17,13 @@ import argparse
 import zope.exceptions
 import zope.browserpage
 
-from zope import component
-from zope.event import notify
-from zope.component.hooks import  site
-
 from zope.container.contained import Contained
 from zope.configuration import xmlconfig, config
 from zope.dottedname import resolve as dottedname
 
 from z3c.autoinclude.zcml import includePluginsDirective
 
-from ZODB.interfaces import IDatabase
-
-import transaction
-
 from nti.dataserver.utils import run_with_dataserver
-
-from nti.processlifetime import  ApplicationTransactionOpenedEvent
 
 from nti.hypatia.reactor import IndexReactor
 from nti.hypatia.reactor import MIN_WAIT_TIME
@@ -145,24 +135,6 @@ def _create_context(env_dir, devmode=False):
 	
 	return context
 
-def _notify_application_opened_event():
-	conn = None
-	try:
-		with transaction.manager:
-			## Send an database/application open transaction event 
-			## to make sure future ZODB database conenctions  
-			## open and close all databases
-			conn = component.getUtility(IDatabase).open()
-			ds_site = conn.root()['nti.dataserver']
-			with site(ds_site):
-				notify(ApplicationTransactionOpenedEvent())
-	finally:
-		if conn is not None:
-			try:
-				conn.close()
-			except StandardError:
-				pass
-			
 def _process_args(args):
 	import logging
 
@@ -184,9 +156,6 @@ def _process_args(args):
 
 	ei = '%(asctime)s %(levelname)-5.5s [%(name)s][%(thread)d][%(threadName)s] %(message)s'
 	logging.root.handlers[0].setFormatter(zope.exceptions.log.Formatter(ei))
-
-	if args.notify:
-		_notify_application_opened_event()
 	
 	target = IndexReactor(min_time=mintime, max_time=maxtime, limit=limit,
 						  retries=retries, sleep=sleep)
