@@ -23,8 +23,6 @@ from .interfaces import ISearchCatalog
 from .interfaces import ISearchCatalogQueue
 from .interfaces import DEFAULT_QUEUE_LIMIT
 
-LOCK_NAME = u"nti/hypatia/lock"
-
 def search_queue():
 	result = component.getUtility(ISearchCatalogQueue)
 	return result

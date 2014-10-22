@@ -17,17 +17,27 @@ import argparse
 import zope.exceptions
 import zope.browserpage
 
+from zope import component
+from zope.event import notify
+from zope.component.hooks import  site
+
 from zope.container.contained import Contained
 from zope.configuration import xmlconfig, config
 from zope.dottedname import resolve as dottedname
 
 from z3c.autoinclude.zcml import includePluginsDirective
 
+from ZODB.interfaces import IDatabase
+
+import transaction
+
 from nti.dataserver.utils import run_with_dataserver
 
+from nti.processlifetime import  ApplicationTransactionOpenedEvent
+
 from nti.hypatia.reactor import IndexReactor
-from nti.hypatia.reactor import MIN_INTERVAL
-from nti.hypatia.reactor import MAX_INTERVAL
+from nti.hypatia.reactor import MIN_WAIT_TIME
+from nti.hypatia.reactor import MAX_WAIT_TIME
 from nti.hypatia.reactor import DEFAULT_SLEEP
 from nti.hypatia.reactor import DEFAULT_RETRIES
 from nti.hypatia.reactor import DEFAULT_INTERVAL
@@ -58,6 +68,8 @@ def main():
 	arg_parser = argparse.ArgumentParser(description="Index processor")
 	arg_parser.add_argument('-v', '--verbose', help="Be verbose", action='store_true',
 							 dest='verbose')
+	arg_parser.add_argument('-n', '--notify', help="Notify database open", action='store_true',
+							 dest='notify')
 	arg_parser.add_argument('-r', '--retries',
 							 dest='retries',
 							 help="Transaction runner retries",
@@ -83,8 +95,6 @@ def main():
 							 help="Queue limit",
 							 type=int,
 							 default=DEFAULT_QUEUE_LIMIT)
-	arg_parser.add_argument('--redis', help="Use redis lock", action='store_true',
-							 dest='redis')
 
 	args = arg_parser.parse_args()
 	env_dir = os.getenv('DATASERVER_DIR')
@@ -135,6 +145,24 @@ def _create_context(env_dir, devmode=False):
 	
 	return context
 
+def _notify_application_opened_event():
+	conn = None
+	try:
+		with transaction.manager:
+			## Send an database/application open transaction event 
+			## to make sure future ZODB database conenctions  
+			## open and close all databases
+			conn = component.getUtility(IDatabase).open()
+			ds_site = conn.root()['nti.dataserver']
+			with site(ds_site):
+				notify(ApplicationTransactionOpenedEvent())
+	finally:
+		if conn is not None:
+			try:
+				conn.close()
+			except StandardError:
+				pass
+			
 def _process_args(args):
 	import logging
 
@@ -150,15 +178,18 @@ def _process_args(args):
 
 	sleep = args.sleep
 	assert sleep >= 0 and sleep <= 10
-	
-	mintime = max(min(mintime, MAX_INTERVAL), MIN_INTERVAL)
-	maxtime = max(min(maxtime, MAX_INTERVAL), MIN_INTERVAL)
+
+	mintime = min(max(mintime, MIN_WAIT_TIME), MAX_WAIT_TIME)
+	maxtime = max(min(maxtime, MAX_WAIT_TIME), MIN_WAIT_TIME)
 
 	ei = '%(asctime)s %(levelname)-5.5s [%(name)s][%(thread)d][%(threadName)s] %(message)s'
 	logging.root.handlers[0].setFormatter(zope.exceptions.log.Formatter(ei))
 
+	if args.notify:
+		_notify_application_opened_event()
+	
 	target = IndexReactor(min_time=mintime, max_time=maxtime, limit=limit,
-						  retries=retries, sleep=sleep, use_redis=args.redis)
+						  retries=retries, sleep=sleep)
 	result = target(time.sleep)
 	sys.exit(result)
 
