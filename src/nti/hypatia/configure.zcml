@@ -40,4 +40,8 @@
 	<utility factory=".query._DefaultQueryParser" name="es" />
 	<utility factory=".query._DefaultQueryParser" name="ru" />
 
+	<subscriber
+		handler="nti.zodb.activitylog.register_subscriber"
+		for="zope.processlifetime.IDatabaseOpenedWithRoot" />
+		
 </configure>
