@@ -20,8 +20,10 @@
 
 	<subscriber handler=".subscribers._object_added"
 				for="* zope.intid.interfaces.IIntIdAddedEvent"/>
+				
 	<subscriber handler=".subscribers._object_removed"
 				for="* zope.intid.interfaces.IIntIdRemovedEvent"/>
+				
 	<subscriber handler=".subscribers._object_modified"
 				for="* zope.lifecycleevent.interfaces.IObjectModifiedEvent"/>
 
