@@ -75,9 +75,6 @@ class TestReactor(unittest.TestCase):
 		user = self._create_user()
 		self._add_notes(user)
 
-		processed = reactor.process_index_msgs(100, use_trx_runner=False)
-		assert_that(processed, is_(len(zanpakuto_commands)))
-
 		rim = hypatia_interfaces.IHypatiaUserIndexController(user)
 		results = rim.search("shield")
 		assert_that(results, has_length(1))

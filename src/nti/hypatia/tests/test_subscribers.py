@@ -19,7 +19,6 @@ from nti.dataserver.contenttypes import Note
 
 from nti.ntiids.ntiids import make_ntiid
 
-from nti.hypatia import reactor
 from nti.hypatia import subscribers
 
 import nti.dataserver.tests.mock_dataserver as mock_dataserver
@@ -67,12 +66,6 @@ class TestSubcribers(unittest.TestCase):
 		assert_that(result, is_(False))
 
 	@WithMockDSTrans
-	def test_queue_added(self):
-		notes, _ = self._add_notes()
-		result = subscribers.queue_added(notes[0])
-		assert_that(result, is_(False))
-
-	@WithMockDSTrans
 	def test_queue_modified(self):
 		notes, _ = self._add_notes()
 		result = subscribers.queue_modified(notes[0])
@@ -93,8 +86,5 @@ class TestSubcribers(unittest.TestCase):
 		note = self._create_note("shared", 'n2@nti.com', sharedWith=(user1,))
 		user2.addContainedObject(note)
 
-		reactor.process_queue()
-
 		count = subscribers.delete_userdata("n1@nti.com")
 		assert_that(count, is_(1))
-

@@ -24,8 +24,6 @@ from nti.dataserver.users import User
 
 from nti.dataserver.contenttypes import Note
 
-from nti.hypatia import reactor
-from nti.hypatia import search_queue
 from nti.hypatia import search_catalog
 
 from nti.ntiids.ntiids import make_ntiid
@@ -53,32 +51,12 @@ class TestModeled(unittest.TestCase):
 		return note
 
 	@mock_dataserver.WithMockDSTrans
-	def test_add_remove(self):
-		conn = mock_dataserver.current_transaction
-		user = self._create_user()
-		note = self._create_note('test', user)
-		if conn: conn.add(note)
-		note = user.addContainedObject(note)
-
-		queue = search_queue()
-		assert_that(queue, has_length(1))
-
-		user.deleteContainedObject(note.containerId, note.id)
-		assert_that(queue, has_length(1))
-
-	@mock_dataserver.WithMockDSTrans
 	def test_process_search(self):
 		conn = mock_dataserver.current_transaction
 		user = self._create_user()
 		note = self._create_note('the light of dangai joue finds its mark', user)
 		if conn: conn.add(note)
 		note = user.addContainedObject(note)
-
-		queue = search_queue()
-		assert_that(queue, has_length(1))
-
-		reactor.process_queue()
-		assert_that(queue, has_length(0))
 		
 		catalog = search_catalog()
 		content = catalog['content']
@@ -98,4 +76,3 @@ class TestModeled(unittest.TestCase):
 		
 		hits, _ = q.search(content='light AND dark')
 		assert_that(hits, is_(0))
-

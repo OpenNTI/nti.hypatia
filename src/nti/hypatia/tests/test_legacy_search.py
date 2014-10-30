@@ -16,8 +16,8 @@ from hamcrest import greater_than_or_equal_to
 
 import unittest
 
+from nti.contentsearch.interfaces import ISearchQuery
 from nti.contentsearch.search_query import DateTimeRange
-from nti.contentsearch import interfaces as search_interfaces
 
 from nti.contentfragments.interfaces import IPlainTextContentFragment
 
@@ -31,8 +31,7 @@ from nti.externalization.internalization import update_from_external_object
 
 from nti.ntiids.ntiids import make_ntiid
 
-from nti.hypatia import reactor
-from nti.hypatia import interfaces as hypatia_interfaces
+from nti.hypatia.interfaces import IHypatiaUserIndexController
 
 import nti.dataserver.tests.mock_dataserver as mock_dataserver
 from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
@@ -77,13 +76,12 @@ class TestLegacySearch(unittest.TestCase):
 
 	def _index_notes(self, user=None):
 		notes, user = self._add_notes(user=user)
-		reactor.process_queue(-1)
 		return user, notes
 
 	@WithMockDSTrans
 	def test_query_notes(self):
 		user, _ = self._index_notes()
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+		rim = IHypatiaUserIndexController(user)
 
 		results = rim.search("shield")
 		assert_that(results, has_length(1))
@@ -100,12 +98,12 @@ class TestLegacySearch(unittest.TestCase):
 		hits = rim.search('"%s"' % zanpakuto_commands[0])
 		assert_that(hits, has_length(1))
 
-		query = search_interfaces.ISearchQuery("shield")
+		query = ISearchQuery("shield")
 		query.searchOn = ("redaction",)
 		results = rim.search(query)
 		assert_that(results, has_length(0))
 
-		query = search_interfaces.ISearchQuery("shield")
+		query = ISearchQuery("shield")
 		query.searchOn = ("note",)
 		results = rim.search(query)
 		assert_that(results, has_length(1))
@@ -113,7 +111,7 @@ class TestLegacySearch(unittest.TestCase):
 	@WithMockDSTrans
 	def test_suggest(self):
 		user, _, = self._index_notes()
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+		rim = IHypatiaUserIndexController(user)
 
 		hits = rim.suggest("ra")
 		assert_that(hits, has_length(greater_than_or_equal_to(4)))
@@ -131,11 +129,8 @@ class TestLegacySearch(unittest.TestCase):
 		redaction.containerId = make_ntiid(nttype='bleach', specific='manga')
 		redaction = user.addContainedObject(redaction)
 
-		# index
-		reactor.process_queue()
-
 		# search
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+		rim = IHypatiaUserIndexController(user)
 
 		hits = rim.search("fear")
 		assert_that(hits, has_length(1))
@@ -157,11 +152,8 @@ class TestLegacySearch(unittest.TestCase):
 		note.containerId = make_ntiid(nttype='bleach', specific='manga')
 		note = user.addContainedObject(note)
 
-		# index
-		reactor.process_queue()
-
 		# search
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+		rim = IHypatiaUserIndexController(user)
 
 		hits = rim.search('"you\'ll be ready"')
 		assert_that(hits, has_length(1))
@@ -183,11 +175,8 @@ class TestLegacySearch(unittest.TestCase):
 		note.containerId = make_ntiid(nttype='bleach', specific='manga')
 		note = user.addContainedObject(note)
 
-		# index
-		reactor.process_queue()
-
 		# search
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+		rim = IHypatiaUserIndexController(user)
 
 		hits = rim.search('"ax+by"')
 		assert_that(hits, has_length(1))
@@ -205,11 +194,8 @@ class TestLegacySearch(unittest.TestCase):
 		note.containerId = make_ntiid(nttype='bleach', specific='manga')
 		note = user.addContainedObject(note)
 
-		# index
-		reactor.process_queue()
-
 		# search
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+		rim = IHypatiaUserIndexController(user)
 
 		hits = rim.search('"light a candle"')
 		assert_that(hits, has_length(1))
@@ -225,11 +211,8 @@ class TestLegacySearch(unittest.TestCase):
 								 title=u'Zangetsu Gone')
 		note = user.addContainedObject(note)
 
-		# index
-		reactor.process_queue()
-
 		# search
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+		rim = IHypatiaUserIndexController(user)
 
 		hits = rim.search('Asauchi')
 		assert_that(hits, has_length(1))
@@ -255,15 +238,12 @@ class TestLegacySearch(unittest.TestCase):
 		note.addSharingTarget(c)
 		note = user_2.addContainedObject(note)
 
-		# index
-		reactor.process_queue()
-
 		# search
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user_1)
+		rim = IHypatiaUserIndexController(user_1)
 		hits = rim.search('Jinzen')
 		assert_that(hits, has_length(1))
 
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user_2)
+		rim = IHypatiaUserIndexController(user_2)
 		hits = rim.search('Madarame')
 		assert_that(hits, has_length(1))
 
@@ -286,10 +266,7 @@ class TestLegacySearch(unittest.TestCase):
 			note.addSharingTarget(c)
 		note = user.addContainedObject(note)
 
-		# index
-		reactor.process_queue()
-
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+		rim = IHypatiaUserIndexController(user)
 		hits = rim.search('atain')
 		assert_that(hits, has_length(1))
 
@@ -313,14 +290,11 @@ class TestLegacySearch(unittest.TestCase):
 		note.addSharingTarget(bleach)
 		note = ichigo.addContainedObject(note)
 
-		# index
-		reactor.process_queue()
-
-		rim = hypatia_interfaces.IHypatiaUserIndexController(gin)
+		rim = IHypatiaUserIndexController(gin)
 		hits = rim.search('getsuga')
 		assert_that(hits, has_length(1))
 
-		rim = hypatia_interfaces.IHypatiaUserIndexController(aizen)
+		rim = IHypatiaUserIndexController(aizen)
 		hits = rim.search('tensho')
 		assert_that(hits, has_length(1))
 
@@ -332,18 +306,15 @@ class TestLegacySearch(unittest.TestCase):
 								 title=u'Rukia')
 		note = user.addContainedObject(note)
 
-		# index
-		reactor.process_queue()
-
 		# search
 
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user)
-		query = search_interfaces.ISearchQuery("bankai")
+		rim = IHypatiaUserIndexController(user)
+		query = ISearchQuery("bankai")
 		query.searchOn = ['content']
 		hits = rim.search(query)
 		assert_that(hits, has_length(0))
 
-		query = search_interfaces.ISearchQuery("bankai")
+		query = ISearchQuery("bankai")
 		query.searchOn = ['note']
 		hits = rim.search(query)
 		assert_that(hits, has_length(1))
@@ -356,23 +327,20 @@ class TestLegacySearch(unittest.TestCase):
 								 title=u'Rukia')
 		note = user.addContainedObject(note)
 
-		# index
-		reactor.process_queue()
-
 		# search
 		now = time.time()
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user)
-		query = search_interfaces.ISearchQuery("bankai")
+		rim = IHypatiaUserIndexController(user)
+		query = ISearchQuery("bankai")
 		query.creationTime = DateTimeRange(startTime=now + 100, endTime=now + 1000)
 		hits = rim.search(query)
 		assert_that(hits, has_length(0))
 
-		query = search_interfaces.ISearchQuery("bankai")
+		query = ISearchQuery("bankai")
 		query.creationTime = DateTimeRange(startTime=now - 1000, endTime=now + 1000)
 		hits = rim.search(query)
 		assert_that(hits, has_length(1))
 		
-		query = search_interfaces.ISearchQuery("notinquery")
+		query = ISearchQuery("notinquery")
 		query.creationTime = DateTimeRange(startTime=now - 1000, endTime=now + 1000)
 		hits = rim.search(query)
 		assert_that(hits, has_length(0))
@@ -389,11 +357,8 @@ class TestLegacySearch(unittest.TestCase):
 
 		note3 = self._create_note(u'bankai', user, title=u'Bleach', inReplyTo=note2)
 		note3 = user.addContainedObject(note3)
-
-		# index
-		reactor.process_queue()
-
-		rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+		
+		rim = IHypatiaUserIndexController(user)
 
 		results = rim.search("ichigo")
 		assert_that(results, has_length(1))
@@ -545,9 +510,8 @@ class TestAppLegacySearch(ApplicationLayerTest):
 		self._do_test_user_can_POST_new_forum_entry(data)
 
 		with mock_dataserver.mock_db_trans(self.ds):
-			reactor.process_queue()
 			user = User.get_user(username)
-			rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+			rim = IHypatiaUserIndexController(user)
 			hits = rim.search(self.forum_headline_unique)
 			assert_that(hits, has_length(1))
 
@@ -571,9 +535,8 @@ class TestAppLegacySearch(ApplicationLayerTest):
 		res = testapp.post_json(contents_url, data, status=201)
 
 		with mock_dataserver.mock_db_trans(self.ds):
-			reactor.process_queue()
 			user = User.get_user(username)
-			rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+			rim = IHypatiaUserIndexController(user)
 			hits = rim.search(self.forum_comment_unique)
 			assert_that(hits, has_length(1))
 
@@ -600,9 +563,8 @@ class TestAppLegacySearch(ApplicationLayerTest):
 		assert_that(res.status_int, is_(204))
 
 		with mock_dataserver.mock_db_trans(self.ds):
-			reactor.process_queue()
 			user = User.get_user(username)
-			rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+			rim = IHypatiaUserIndexController(user)
 			hits = rim.search(self.forum_comment_unique)
 			assert_that(hits, has_length(0))
 
@@ -614,9 +576,8 @@ class TestAppLegacySearch(ApplicationLayerTest):
 		self._POST_and_publish_topic_entry()
 
 		with mock_dataserver.mock_db_trans(self.ds):
-			reactor.process_queue()
 			user = User.get_user(fixture.user2_username)
-			rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+			rim = IHypatiaUserIndexController(user)
 			hits = rim.search(self.forum_headline_unique)
 			assert_that(hits, has_length(1))
 
@@ -634,23 +595,21 @@ class TestAppLegacySearch(ApplicationLayerTest):
 		testapp2.post_json(topic_url, comment_data, status=201)
 
 		with mock_dataserver.mock_db_trans(self.ds):
-			reactor.process_queue()
 			user = User.get_user(fixture.user3_username)
-			rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+			rim = IHypatiaUserIndexController(user)
 			hits = rim.search(self.forum_comment_unique)
 			assert_that(hits, has_length(1))
 
 		self.testapp.post(self.require_link_href_with_rel(publish_res.json_body, 'unpublish'))
 
 		with mock_dataserver.mock_db_trans(self.ds):
-			reactor.process_queue()
 			user = User.get_user(fixture.user3_username)
-			rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+			rim = IHypatiaUserIndexController(user)
 			hits = rim.search(self.forum_comment_unique)
 			assert_that(hits, has_length(0))
 
 			user = User.get_user(fixture.user2_username)
-			rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+			rim = IHypatiaUserIndexController(user)
 			hits = rim.search(self.forum_comment_unique)
 			assert_that(hits, has_length(1))
 
@@ -667,12 +626,9 @@ class TestAppLegacySearch(ApplicationLayerTest):
 		testapp.post_json('/dataserver2/users/%s/Blog' % username, data, status=201)
 
 		with mock_dataserver.mock_db_trans(self.ds):
-			# index
-			reactor.process_queue()
-
 			# search
 			user = User.get_user(username)
-			rim = hypatia_interfaces.IHypatiaUserIndexController(user)
+			rim = IHypatiaUserIndexController(user)
 			hits = rim.search('Kenpachi')
 			assert_that(hits, has_length(1))
 

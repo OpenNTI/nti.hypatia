@@ -22,8 +22,7 @@ from nti.dataserver.users import User
 
 from nti.dataserver.contenttypes import Note
 
-from nti.hypatia import reactor
-from nti.hypatia import interfaces as hypatia_interfaces
+from nti.hypatia.interfaces import IHypatiaUserIndexController
 
 from nti.ntiids.ntiids import make_ntiid
 
@@ -63,22 +62,20 @@ class TestAdapters(unittest.TestCase):
 		if conn: conn.add(note)
 		note = user1.addContainedObject(note)
 
-		reactor.process_queue()
-
-		searcher = hypatia_interfaces.IHypatiaUserIndexController(user1)
+		searcher = IHypatiaUserIndexController(user1)
 		hits = searcher.search("Jinzen")
 		assert_that(hits, has_length(1))
 		assert_that(searcher.username, is_('user1@nti.com'))
 
-		searcher = hypatia_interfaces.IHypatiaUserIndexController(user2)
+		searcher = IHypatiaUserIndexController(user2)
 		hits = searcher.search("communication")
 		assert_that(hits, has_length(1))
 
-		searcher = hypatia_interfaces.IHypatiaUserIndexController(user1)
+		searcher = IHypatiaUserIndexController(user1)
 		hits = searcher.search("Madarame")
 		assert_that(hits, has_length(1))
 
-		searcher = hypatia_interfaces.IHypatiaUserIndexController(user3)
+		searcher = IHypatiaUserIndexController(user3)
 		hits = searcher.search("Madarame")
 		assert_that(hits, has_length(0))
 
@@ -92,7 +89,7 @@ class TestAdapters(unittest.TestCase):
 		hits = searcher.suggest("")
 		assert_that(hits, has_length(0))
 
-		searcher = hypatia_interfaces.IHypatiaUserIndexController(user1)
+		searcher = IHypatiaUserIndexController(user1)
 		hits = searcher.suggest_and_search("jinz")
 		assert_that(hits, has_length(1))
 
@@ -108,7 +105,7 @@ class TestAdapters(unittest.TestCase):
 		if conn: conn.add(note)
 		note = user1.addContainedObject(note)
 
-		searcher = hypatia_interfaces.IHypatiaUserIndexController(user1)
+		searcher = IHypatiaUserIndexController(user1)
 		searcher.index_content(note)
 		searcher.update_content(note)
 		searcher.delete_content(note)
@@ -125,9 +122,6 @@ class TestAdapters(unittest.TestCase):
 		if conn: conn.add(note)
 		note = user1.addContainedObject(note)
 
-		reactor.process_queue()
-
-		searcher = hypatia_interfaces.IHypatiaUserIndexController(user1)
+		searcher = IHypatiaUserIndexController(user1)
 		hits = searcher.search("and")
 		assert_that(hits, has_length(1))
-

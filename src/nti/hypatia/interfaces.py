@@ -88,5 +88,10 @@ class ISearchQueryParser(ISearchQueryParser):
 		parse the specified query
 		"""
 
+class ISearchCatalogQueueFactory(interface.Interface):
+	"""
+	A factory for search queues.
+	"""
+	
 class IHypatiaUserIndexController(IEntityIndexController):
 	pass

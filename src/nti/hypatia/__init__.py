@@ -22,9 +22,11 @@ from nti.dataserver.interfaces import IUser
 from .interfaces import ISearchCatalog
 from .interfaces import ISearchCatalogQueue
 from .interfaces import DEFAULT_QUEUE_LIMIT
+from .interfaces import ISearchCatalogQueueFactory
 
 def search_queue():
-	result = component.getUtility(ISearchCatalogQueue)
+	factory = component.getUtility(ISearchCatalogQueueFactory)
+	result = factory.get_queue()
 	return result
 
 def search_catalog():
@@ -55,11 +57,11 @@ def queue_length(queue=None):
 		logger.error("Could not compute queue length")
 	return result
 
-def process_queue(limit=DEFAULT_QUEUE_LIMIT, sync_queue=True):
+def process_queue(queue=None, limit=DEFAULT_QUEUE_LIMIT, sync_queue=True):
 	ids = component.getUtility(zope.intid.IIntIds)
 	catalog = component.getUtility(ISearchCatalog)
 
-	queue = search_queue()
+	queue = search_queue() if queue is None else queue
 	if sync_queue and queue.syncQueue():
 		logger.debug("Queue synched")
 	queue_size = queue_length(queue)
