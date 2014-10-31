@@ -69,8 +69,8 @@ def process_queue(queue=None, limit=DEFAULT_QUEUE_LIMIT, sync_queue=True):
 	limit = queue_size if limit == -1 else limit
 	to_process = min(limit, queue_size)
 	if queue_size > 0:
-		logger.info("Taking %s event(s) to process; current queue size %s",
-					to_process, queue_size)
+		logger.debub("Taking %s event(s) to process; current queue size %s",
+					 to_process, queue_size)
 		queue.process(ids, (catalog,), to_process)
 
 	return to_process

@@ -47,16 +47,10 @@
 		
 	<!-- Register queue -->
 
-	<configure zcml:condition="have devmode">
-		<configure zcml:condition="not-have testmode">
-			<meta:registerProcessingQueue />
-		</configure>
-		<configure zcml:condition="have testmode">
-			<meta:registerImmediateProcessingQueue />
-		</configure>
+	<configure zcml:condition="have testmode">
+		<meta:registerImmediateProcessingQueue />
 	</configure>
-
-	<configure zcml:condition="not-have devmode">
+	<configure zcml:condition="not-have testmode">
 		<meta:registerProcessingQueue />
 	</configure>
 </configure>
