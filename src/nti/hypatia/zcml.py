@@ -14,10 +14,10 @@ from zope import interface
 from zope import component
 from zope.component.zcml import utility
 
-from nti.hypatia import process_queue
+from . import process_queue
 
-from nti.hypatia.interfaces import ISearchCatalogQueue
-from nti.hypatia.interfaces import ISearchCatalogQueueFactory
+from .interfaces import ISearchCatalogQueue
+from .interfaces import ISearchCatalogQueueFactory
 
 @interface.implementer(ISearchCatalogQueue)
 class ImmediateQueueRunner(object):
@@ -86,9 +86,9 @@ class _ProcessingQueueFactory(object):
 def registerImmediateProcessingQueue(_context):
 	logger.info( "Registering immediate processing queue" )
 	factory = _ImmediateQueueFactory()
-	utility( _context, provides=ISearchCatalogQueueFactory, component=factory)
+	utility(_context, provides=ISearchCatalogQueueFactory, component=factory)
 
 def registerProcessingQueue(_context):
 	logger.info( "Registering processing queue" )
 	factory = _ProcessingQueueFactory()
-	utility( _context, provides=ISearchCatalogQueueFactory, component=factory)
+	utility(_context, provides=ISearchCatalogQueueFactory, component=factory)
