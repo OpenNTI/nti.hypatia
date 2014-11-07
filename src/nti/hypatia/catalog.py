@@ -145,7 +145,8 @@ class SearchCatalogQuery(CatalogQuery):
 	def metadata(self):
 		return component.getUtility(ZOPE_ICATALOG, name=metadata_index.CATALOG_NAME)
 
-	def query_metadata_index(self, index, dateRange, mapped={}):
+	def query_metadata_index(self, index, dateRange, mapped=None):
+		mapped = {} if mapped is None else mapped
 		# query meta-data index
 		startTime = dateRange.startTime or 0
 		endTime = dateRange.endTime or sys.maxint
