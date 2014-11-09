@@ -50,6 +50,9 @@ class ImmediateQueueRunner(object):
 		
 	def eventQueueLength(self):
 		return len(self)
+	
+	def changeLength(self, *args, **kwargs):
+		pass
 
 	def process(self, *args, **kwargs):
 		pass
