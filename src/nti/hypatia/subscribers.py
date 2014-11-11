@@ -82,6 +82,7 @@ def _object_modified(modeled, event):
 		queue_modified(modeled)
 
 def delete_userdata(username):
+	logger.info("Removing hypatia search data for user %s", username)
 	catalog = search_catalog()
 	kwIndex = catalog[acl_]
 	docids = kwIndex.remove_word(username)
