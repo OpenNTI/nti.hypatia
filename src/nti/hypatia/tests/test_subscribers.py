@@ -8,6 +8,7 @@ __docformat__ = "restructuredtext en"
 # pylint: disable=W0212,R0904
 
 from hamcrest import is_
+from hamcrest import has_length
 from hamcrest import assert_that
 
 import unittest
@@ -20,6 +21,7 @@ from nti.dataserver.contenttypes import Note
 from nti.ntiids.ntiids import make_ntiid
 
 from nti.hypatia import subscribers
+from nti.hypatia import search_catalog
 
 import nti.dataserver.tests.mock_dataserver as mock_dataserver
 from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
@@ -86,5 +88,14 @@ class TestSubcribers(unittest.TestCase):
 		note = self._create_note("shared", 'n2@nti.com', sharedWith=(user1,))
 		user2.addContainedObject(note)
 
-		count = subscribers.delete_userdata("n1@nti.com")
-		assert_that(count, is_(1))
+		catalog = search_catalog()
+		aclIndex = catalog['acl']
+		cretorIndex = catalog['creator']
+		
+		assert_that(aclIndex.search("n1@nti.com"), has_length(2))
+		assert_that(cretorIndex.apply("n1@nti.com",), has_length(1))
+		
+		subscribers.delete_userdata("n1@nti.com")
+		assert_that(aclIndex.search("n1@nti.com"), has_length(1))
+		assert_that(cretorIndex.apply("n1@nti.com",), has_length(0))
+		

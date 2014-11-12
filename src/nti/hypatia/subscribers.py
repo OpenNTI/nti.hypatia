@@ -16,6 +16,7 @@ from zope import component
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 
 from nti.contentsearch.constants import acl_
+from nti.contentsearch.constants import creator_
 from nti.contentsearch.discriminators import query_uid
 
 from nti.dataserver.users import Entity
@@ -83,12 +84,19 @@ def _object_modified(modeled, event):
 
 def delete_userdata(username):
 	logger.info("Removing hypatia search data for user %s", username)
+	username = username.lower()
 	catalog = search_catalog()
+	# remove from ACL index
 	kwIndex = catalog[acl_]
-	docids = kwIndex.remove_word(username)
-	for docid in docids or ():
-		search_queue().remove(docid)
-	return len(docids)
+	kwIndex.remove_word(username)
+	# remove from creator index
+	crIndex = catalog[creator_]
+	try:
+		docids = crIndex._fwd_index[username]
+		for docid in list(docids or ()):
+			crIndex.unindex_doc(docid)
+	except KeyError: # pragma no cover
+		pass
 
 @component.adapter(IUser, IObjectRemovedEvent)
 def _user_deleted(user, event):

@@ -30,13 +30,8 @@ class SearchKeywordIndex(KeywordIndex):
 	@property
 	def num_docs(self):
 		return self._num_docs.value
-		
-	def index_doc(self, docid, obj):
-		__traceback_info__ = docid, obj
-		result = super(SearchKeywordIndex, self).index_doc(docid, obj)
-		return result
 
-	def strictEq(self, query):
+	def strict_eq(self, query):
 		if isinstance(query, six.string_types):
 			query = [query]
 
@@ -66,11 +61,12 @@ class SearchKeywordIndex(KeywordIndex):
 			return result
 		else:
 			return Set()
-
-	def removeWord(self, word):
+	strictEq = strict_eq
+	
+	def remove_word(self, word):
 		result = []
-		docids = self._fwd_index.get(word, self.family.IF.Set())
-		for docid in list(docids):
+		docids = self._fwd_index.get(word)
+		for docid in list(docids or ()):
 			ooset = self._rev_index[docid]
 			if len(ooset) == 1:
 				result.append(docid)
@@ -78,9 +74,9 @@ class SearchKeywordIndex(KeywordIndex):
 			else:
 				ooset.remove(word)
 		return result
-	remove_word = removeWord
+	removeWord = remove_word
 
-	def replaceWord(self, word, replacement):
+	def replace_word(self, word, replacement):
 		if word not in self._fwd_index or replacement in self._fwd_index:
 			return None
 
@@ -93,4 +89,4 @@ class SearchKeywordIndex(KeywordIndex):
 				ooset.remove(word)
 			ooset.add(replacement)
 		return result
-	replace_word = replaceWord
+	replaceWord = replace_word
