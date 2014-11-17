@@ -1,15 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-$Id$
+.. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+from zope import interface
+
+from hypatia.text import TextIndex
 from hypatia.text.okapiindex import OkapiIndex
 from hypatia.text.cosineindex import CosineIndex
+
+from .interfaces import ISearchTextIndex
+
+@interface.implementer(ISearchTextIndex)
+class SearchTextIndex(TextIndex):
+	
+	@classmethod
+	def createFromTextIndex(cls, index):
+		result = cls(discriminator=index.discriminator,
+					 lexicon=index.lexicon,
+					 index=index.index,
+					 family=index.family)
+		# reuse internal fields
+		result._not_indexed = index._not_indexed 
+		return result
 
 class SourceBaseIndexMixin(object):
 

@@ -35,6 +35,7 @@ from nti.hypatia.reactor import MAX_WAIT_TIME
 from nti.hypatia.reactor import DEFAULT_SLEEP
 from nti.hypatia.reactor import DEFAULT_RETRIES
 from nti.hypatia.reactor import DEFAULT_INTERVAL
+
 from nti.hypatia.interfaces import DEFAULT_QUEUE_LIMIT
 
 def sigint_handler(*args):
@@ -44,8 +45,8 @@ def sigint_handler(*args):
 def handler(*args):
 	raise SystemExit()
 
-signal.signal(signal.SIGINT, sigint_handler)
 signal.signal(signal.SIGTERM, handler)
+signal.signal(signal.SIGINT, sigint_handler)
 
 # package loader info
 
@@ -62,7 +63,8 @@ def main():
 	arg_parser = argparse.ArgumentParser(description="Index processor")
 	arg_parser.add_argument('-v', '--verbose', help="Be verbose", action='store_true',
 							 dest='verbose')
-	arg_parser.add_argument('-n', '--notify', help="Notify database open", action='store_true',
+	arg_parser.add_argument('-n', '--notify', help="Notify database open", 
+							 action='store_true',
 							 dest='notify')
 	arg_parser.add_argument('-r', '--retries',
 							 dest='retries',

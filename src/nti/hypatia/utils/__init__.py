@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-hypatia utils
-
 .. $Id$
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
@@ -11,10 +9,11 @@ __docformat__ = "restructuredtext en"
 logger = __import__('logging').getLogger(__name__)
 
 import zope.intid
+
 from zope import component
 from zope.catalog.interfaces import ICatalog
 
-from ZODB.POSException import POSKeyError
+from ZODB.POSException import POSError
 
 from nti.contentsearch.interfaces import IContentResolver
 
@@ -26,14 +25,14 @@ from nti.externalization.oids import to_external_oid
 from nti.hypatia import is_indexable
 
 def _is_indexable_and_valid_object(obj, usernames=()):
-	# get the object creator to try to trigger a POSKeyError 
+	# get the object creator to try to trigger a POSError 
 	# if the object is invalid
 	creator = getattr(obj, 'creator', None) or u''
 	username = getattr(creator, 'username', creator).lower()
 	result =  is_indexable(obj) and not IDeletedObjectPlaceholder.providedBy(obj) and \
 			  (not usernames or username in usernames) 
 	if result:
-		# resolve the content to try trigger POSKeyError if the object is invalid
+		# resolve the content to try trigger POSError if the object is invalid
 		resolver = IContentResolver(obj, None)
 		getattr(resolver, 'content', None)
 	return result
@@ -47,7 +46,7 @@ def all_indexable_objects_iids(users=()):
 			obj = intids.getObject(uid)
 			if _is_indexable_and_valid_object(obj, usernames):
 				yield uid, obj
-		except (POSKeyError, TypeError) as e:
+		except (POSError, TypeError) as e:
 			logger.error("Ignoring %s(%s); %s", type(obj), uid, e)
 
 def all_cataloged_objects(users=()):
@@ -65,5 +64,5 @@ def all_cataloged_objects(users=()):
 			obj = intids.getObject(uid)
 			if 	_is_indexable_and_valid_object(obj):
 				yield uid, obj
-		except (POSKeyError, TypeError) as e:
+		except (POSError, TypeError) as e:
 			logger.error("Ignoring %s(%s); %s", type(obj), uid, e)

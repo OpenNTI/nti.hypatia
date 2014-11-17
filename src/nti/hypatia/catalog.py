@@ -18,9 +18,7 @@ from zope.catalog.interfaces import ICatalog as ZOPE_ICATALOG
 
 import BTrees
 
-from hypatia.text import TextIndex
 from hypatia.catalog import Catalog
-from hypatia.field import FieldIndex
 from hypatia.catalog import CatalogQuery
 from hypatia.text.cosineindex import CosineIndex
 
@@ -44,6 +42,9 @@ from nti.dataserver import metadata_index
 from nti.utils.property import Lazy
 
 from .lexicon import defaultLexicon
+
+from .text import SearchTextIndex
+from .field import SearchFieldIndex
 from .keyword import SearchKeywordIndex
 
 from .interfaces import ISearchCatalog
@@ -67,13 +68,15 @@ def create_catalog(lexicon=None, ngram_lexicon=None, family=BTrees.family64):
 	result[type_] = SearchKeywordIndex(discriminator=get_type, family=family)
 
 	index = CosineIndex(lexicon=lexicon, family=family)
-	result[content_] = TextIndex(lexicon=lexicon,
-								 index=index,
-								 discriminator=get_object_content,
-								 family=family)
+	result[content_] = \
+				SearchTextIndex(lexicon=lexicon,
+								index=index,
+								discriminator=get_object_content,
+								family=family)
 
 	index = CosineIndex(lexicon=ngram_lexicon, family=family)
-	result[ngrams_] = TextIndex(lexicon=ngram_lexicon,
+	result[ngrams_] = \
+				SearchTextIndex(lexicon=ngram_lexicon,
 								index=index,
 								discriminator=get_object_ngrams,
 								family=family)
@@ -85,27 +88,28 @@ def create_catalog(lexicon=None, ngram_lexicon=None, family=BTrees.family64):
 									 	   family=family)
 
 	index = CosineIndex(lexicon=lexicon, family=family)
-	result[title_] = TextIndex(lexicon=lexicon,
-							   index=index,
-							   discriminator=get_title_and_ngrams,
-							   family=family)
+	result[title_] = \
+				SearchTextIndex(lexicon=lexicon,
+							    index=index,
+							    discriminator=get_title_and_ngrams,
+							    family=family)
 
 	index = CosineIndex(lexicon=lexicon, family=family)
 	result[redactionExplanation_] = \
-				TextIndex(lexicon=lexicon,
-						  index=index,
-						  discriminator=get_redaction_explanation_and_ngrams,
-						  family=family)
+				SearchTextIndex(lexicon=lexicon,
+						  		index=index,
+						 		discriminator=get_redaction_explanation_and_ngrams,
+						 		family=family)
 
 	index = CosineIndex(lexicon=lexicon, family=family)
 	result[replacementContent_] = \
-						TextIndex(lexicon=lexicon,
-								  index=index,
-								  discriminator=get_replacement_content,
-								  family=family)
+				SearchTextIndex(lexicon=lexicon,
+								index=index,
+								discriminator=get_replacement_content,
+								family=family)
 
-	result[creator_] = FieldIndex(discriminator=get_creator,
-								  family=family)
+	result[creator_] = SearchFieldIndex(discriminator=get_creator,
+								  		family=family)
 	
 	result[acl_] = SearchKeywordIndex(discriminator=get_acl,
 									  family=family)
@@ -195,4 +199,3 @@ class SearchCatalogQuery(CatalogQuery):
 																names=names)
 		numdocs, result = self.query_by_time(numdocs, result)
 		return numdocs, result
-

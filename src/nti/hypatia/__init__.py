@@ -16,7 +16,7 @@ import zope.intid
 
 from nti.contentsearch.interfaces import ITypeResolver
 
-from nti.dataserver import users
+from nti.dataserver.users import User
 from nti.dataserver.interfaces import IUser
 
 from .interfaces import ISearchCatalog
@@ -34,8 +34,7 @@ def search_catalog():
 	return result
 
 def get_user(user):
-	user = users.User.get_user(str(user)) \
-		   if not IUser.providedBy(user) and user else user
+	user = User.get_user(str(user)) if user and not IUser.providedBy(user) else user
 	return user
 
 def get_usernames_of_dynamic_memberships(user):

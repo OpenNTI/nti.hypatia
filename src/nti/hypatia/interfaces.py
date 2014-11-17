@@ -55,22 +55,37 @@ class ISearchCatalogQuery(ICatalogQuery):
 
 class ISearchKeywordIndex(interface.Interface):
 
-	def strictEq(query):
+	def get_words(docid):
+		"""
+		return the words for the specified doc id
+		"""
+
+	def strict_eq(query):
 		"""
 		return the docids that have the exact word(s) in the specfied query
 		"""
 
-	def removeWord(word):
+	def remove_word(word):
 		"""
 		remove the specfied word from this index
 		"""
 
-	def replaceWord(word, replacement):
+	def replace_word(word, replacement):
 		"""
 		replace the specfied word w/ its replacement provided that the latter is not
 		stored
 		"""
 
+class ISearchFieldIndex(interface.Interface):
+	"""
+	marker interface for field indices
+	"""
+
+class ISearchTextIndex(interface.Interface):
+	"""
+	marker interface for text indices
+	"""
+	
 class ISearchTimeFieldIndex(interface.Interface):
 	pass
 
