@@ -8,6 +8,8 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+import six
+
 import zope.intid
 
 from zope import component
@@ -34,8 +36,9 @@ def _is_indexable_and_valid_object(obj, usernames=(), resolve=True):
 	if usernames:
 		# get the object creator to try to trigger a POSError if the object is invalid
 		creator = getattr(obj, 'creator', None) or u''
-		username = getattr(creator, 'username', creator).lower()
-		if username not in usernames:
+		username = getattr(creator, 'username', creator)
+		if  not isinstance(username, six.string_types) or \
+			username.lower() not in usernames:
 			return False
 	
 	if resolve:
