@@ -13,6 +13,7 @@ logger = __import__('logging').getLogger(__name__)
 generation = 2
 
 import zope.intid
+
 from zope import component
 from zope.component.hooks import site, setHooks
 

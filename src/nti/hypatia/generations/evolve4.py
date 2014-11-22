@@ -27,7 +27,6 @@ from ..utils import all_indexable_objects_iids
 from ..interfaces import ISearchCatalog
 from ..interfaces import ISearchCatalogQueue
 
-
 def do_evolve(context):
 	setHooks()
 	conn = context.connection

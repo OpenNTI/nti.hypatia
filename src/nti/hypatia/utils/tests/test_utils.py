@@ -116,7 +116,7 @@ class TestUtils(unittest.TestCase):
 
 		sample = random.sample(users, 3)
 		accum = sum([collector[x] for x in sample])
-		iids = list(all_cataloged_objects(sample))
+		iids = list(all_cataloged_objects(users=sample))
 		assert_that(iids, has_length(accum))
 
 		iids = list(all_cataloged_objects())
