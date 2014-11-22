@@ -25,24 +25,30 @@ from nti.externalization.oids import to_external_oid
 from nti.hypatia import is_indexable
 
 def _is_indexable_and_valid_object(obj, usernames=(), resolve=True):
-	# get the object creator to try to trigger a POSError 
-	# if the object is invalid
-	creator = getattr(obj, 'creator', None) or u''
-	username = getattr(creator, 'username', creator).lower()
-	result =  is_indexable(obj) and not IDeletedObjectPlaceholder.providedBy(obj) and \
-			  (not usernames or username in usernames) 
-	if result and resolve:
+	if IDeletedObjectPlaceholder.providedBy(obj):
+		return False
+
+	if not is_indexable(obj):
+		return False
+	
+	if usernames:
+		# get the object creator to try to trigger a POSError if the object is invalid
+		creator = getattr(obj, 'creator', None) or u''
+		username = getattr(creator, 'username', creator).lower()
+		if username not in usernames:
+			return False
+	
+	if resolve:
 		# resolve the content to try trigger POSError if the object is invalid
 		IContentResolver(obj).content
-	return result
+	return True
 		
 def all_indexable_objects_iids(users=(), resolve=True):
 	obj = None
 	intids = component.getUtility(zope.intid.IIntIds)
 	usernames = {getattr(user, 'username', user).lower() for user in users or ()}
-	for uid in intids:
+	for uid, obj in intids.items():
 		try:
-			obj = intids.getObject(uid)
 			if _is_indexable_and_valid_object(obj, usernames, resolve=resolve):
 				yield uid, obj
 		except (POSError, TypeError, AttributeError) as e:
