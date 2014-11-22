@@ -47,8 +47,9 @@ def all_indexable_objects_iids(users=(), resolve=True):
 	obj = None
 	intids = component.getUtility(zope.intid.IIntIds)
 	usernames = {getattr(user, 'username', user).lower() for user in users or ()}
-	for uid, obj in intids.items():
+	for uid in intids:
 		try:
+			obj = intids.getObject(uid)
 			if _is_indexable_and_valid_object(obj, usernames, resolve=resolve):
 				yield uid, obj
 		except (POSError, TypeError, AttributeError) as e:
