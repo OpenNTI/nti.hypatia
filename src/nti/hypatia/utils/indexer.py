@@ -63,9 +63,6 @@ def main():
 	arg_parser = argparse.ArgumentParser(description="Index processor")
 	arg_parser.add_argument('-v', '--verbose', help="Be verbose", action='store_true',
 							 dest='verbose')
-	arg_parser.add_argument('-n', '--notify', help="Notify database open", 
-							 action='store_true',
-							 dest='notify')
 	arg_parser.add_argument('-r', '--retries',
 							 dest='retries',
 							 help="Transaction runner retries",
@@ -91,6 +88,9 @@ def main():
 							 help="Queue limit",
 							 type=int,
 							 default=DEFAULT_QUEUE_LIMIT)
+	arg_parser.add_argument('--pke', help="Don't ignore POSKeyErrors", 
+							 action='store_true',
+							 dest='allow_pke')
 
 	args = arg_parser.parse_args()
 	env_dir = os.getenv('DATASERVER_DIR')
@@ -157,6 +157,7 @@ def _process_args(args):
 	sleep = args.sleep
 	assert sleep >= 0 and sleep <= 10
 
+	ignore_pke = not args.allow_pke 
 	mintime = min(max(mintime, MIN_WAIT_TIME), MAX_WAIT_TIME)
 	maxtime = max(min(maxtime, MAX_WAIT_TIME), MIN_WAIT_TIME)
 
@@ -169,7 +170,7 @@ def _process_args(args):
 	open_all_databases(db, close_children=False)
 	
 	target = IndexReactor(min_time=mintime, max_time=maxtime, limit=limit,
-						  retries=retries, sleep=sleep)
+						  ignore_pke=ignore_pke, retries=retries, sleep=sleep)
 	result = target(time.sleep)
 	sys.exit(result)
 

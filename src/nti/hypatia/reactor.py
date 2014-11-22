@@ -15,14 +15,14 @@ import os
 import time
 import gevent
 import random
-import functools
+from functools import partial
 
 from zope import component
 from zope import interface
 from zope.component import ComponentLookupError
 
 from ZODB import loglevels
-from ZODB.POSException import POSKeyError
+from ZODB.POSException import POSError
 from ZODB.POSException import ConflictError
 
 from redis.connection import ConnectionError
@@ -44,24 +44,25 @@ DEFAULT_SLEEP = 1
 DEFAULT_RETRIES = 2
 DEFAULT_INTERVAL = 30
 
-POS_KEY_ERROR_RT = -2
+POS_ERROR_RT = -2
 CONFLICT_ERROR_RT = -1
 
-def process_index_msgs(limit=DEFAULT_QUEUE_LIMIT, 
+def process_index_msgs(ignore_pke=True,
 					   use_trx_runner=True,
+					   sleep=DEFAULT_SLEEP,
 					   retries=DEFAULT_RETRIES,
-					   sleep=DEFAULT_SLEEP):
+					   limit=DEFAULT_QUEUE_LIMIT):
 	result = 0
 	try:
-		runner = functools.partial(process_queue, limit=limit)
+		runner = partial(process_queue, limit=limit)
 		if use_trx_runner:
 			trx_runner = component.getUtility(IDataserverTransactionRunner)
 			result = trx_runner(runner, retries=retries, sleep=sleep)
 		else:
 			result = runner()
-	except POSKeyError:
+	except POSError:
 		logger.exception("Cannot index object(s)")
-		result = POS_KEY_ERROR_RT
+		result = POS_ERROR_RT
 	except (UnableToAcquireCommitLock, ConflictError) as e:
 		logger.error(e)
 		result = CONFLICT_ERROR_RT
@@ -76,18 +77,19 @@ class IndexReactor(object):
 	# transaction runner
 	sleep = DEFAULT_SLEEP
 	retries = DEFAULT_RETRIES
-
+	
 	stop = False
 	start_time = 0
 	processor = pid = None
 
 	def __init__(self, min_time=None, max_time=None, limit=None, 
-				 retries=None, sleep=None):
+				 ignore_pke=True, retries=None, sleep=None):
 		self.retries = retries or DEFAULT_RETRIES
 		self.limit = limit or DEFAULT_QUEUE_LIMIT
 		self.min_wait_time = min_time or MIN_WAIT_TIME
 		self.max_wait_time = max_time or MAX_WAIT_TIME
 		self.sleep = DEFAULT_SLEEP if sleep is None else sleep
+		self.ignore_pke = True if ignore_pke is None else ignore_pke
 				
 	def __repr__(self):
 		return "%s" % (self.__class__.__name__.lower())
@@ -115,7 +117,8 @@ class IndexReactor(object):
 					if not self.stop:
 						result = process_index_msgs(limit=batch_size,
 												 	sleep=self.sleep,
-												 	retries=self.retries)
+												 	retries=self.retries,
+												 	ignore_pke=self.ignore_pke)
 						duration = time.time() - start
 						if result == 0: # no work
 							batch_size = self.limit  # reset to default
@@ -152,7 +155,7 @@ class IndexReactor(object):
 					result = 66
 					logger.exception("%s could not connect to redis", self.pid)
 					break
-				except (TypeError, StandardError):
+				except (TypeError, ValueError, StandardError):
 					result = 77 # Cache errors?
 					break
 				except:

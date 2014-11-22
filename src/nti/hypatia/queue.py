@@ -3,19 +3,26 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
+from datetime import datetime
 from collections import Mapping
 
+import pytz
 import BTrees
 
 from zope import interface
 from zope.container.contained import Contained
 
+from ZODB.interfaces import IBroken
+from ZODB.POSException import POSKeyError
+
 from zc.catalogqueue.queue import CatalogQueue
+from zc.catalogqueue.CatalogEventQueue import REMOVED
 from zc.catalogqueue.CatalogEventQueue import CatalogEventQueue
 
 from .interfaces import ISearchCatalogQueue
@@ -115,3 +122,35 @@ class SearchCatalogQueue(Contained, CatalogQueue):
 	def __str__(self):
 		return "%s(%s)" % (self.__class__.__name__, self._buckets)
 	__repr__ = __str__
+	
+	def process(self, ids, catalogs, limit, ignore_pke=True):
+		done = 0
+		for queue in self._queues:
+			for uid, (_, event) in queue.process(limit-done).iteritems():
+				try:
+					if event is REMOVED:
+						for catalog in catalogs:
+							catalog.unindex_doc(uid)
+					else:
+						ob = ids.queryObject(uid)
+						if ob is None:
+							logger.warn("Couldn't find object for %s", uid)
+						elif IBroken.providedBy(ob):
+							logger.warn("Ignoring broken object with id %s", uid)
+						else:
+							for catalog in catalogs:
+								catalog.index_doc(uid, ob)
+				except POSKeyError as e:
+					if ignore_pke:
+						logger.error("POSKeyError while indexing object with id %s", uid)
+					else:
+						raise e
+				done += 1
+				self._change_length(-1)
+
+			if done >= limit:
+				break
+
+		self.totalProcessed += done
+		self.lastProcessedTime = datetime.now(pytz.UTC)
+		return done
