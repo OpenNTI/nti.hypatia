@@ -54,7 +54,7 @@ def process_index_msgs(ignore_pke=True,
 					   limit=DEFAULT_QUEUE_LIMIT):
 	result = 0
 	try:
-		runner = partial(process_queue, limit=limit)
+		runner = partial(process_queue, limit=limit, ignore_pke=ignore_pke)
 		if use_trx_runner:
 			trx_runner = component.getUtility(IDataserverTransactionRunner)
 			result = trx_runner(runner, retries=retries, sleep=sleep)
