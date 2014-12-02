@@ -72,8 +72,6 @@ def process_queue(queue=None, limit=DEFAULT_QUEUE_LIMIT, sync_queue=True,
 	to_process = min(limit, queue_size)
 	if queue_size > 0:
 		now = time.time()
-		logger.debug("Taking %s event(s) to process; current queue size %s",
-					 to_process, queue_size)
 		done = queue.process(ids, (catalog,), to_process, ignore_pke=ignore_pke)
-		logger.debug("%s event(s) processed in %s(s)", done, time.time()-now)
+		logger.info("%s event(s) processed in %s(s)", done, time.time()-now)
 	return to_process
