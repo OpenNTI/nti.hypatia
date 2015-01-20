@@ -3,14 +3,11 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
-
-import gevent
-import functools
-import transaction
 
 from zope import component
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
@@ -25,7 +22,6 @@ from nti.dataserver.interfaces import IEntity
 from nti.dataserver.interfaces import IReadableShared
 from nti.dataserver.interfaces import IDeletedObjectPlaceholder
 from nti.dataserver.interfaces import ITargetedStreamChangeEvent
-from nti.dataserver.interfaces import IDataserverTransactionRunner
 from nti.dataserver.interfaces import SC_CREATED, SC_SHARED, SC_MODIFIED, SC_DELETED
 
 from . import is_indexable
@@ -101,15 +97,7 @@ def delete_userdata(username):
 @component.adapter(IUser, IObjectRemovedEvent)
 def _user_deleted(user, event):
 	username = user.username
-	def _process_event():
-		transaction_runner = \
-			component.getUtility(IDataserverTransactionRunner)
-		func = functools.partial(delete_userdata, username=username)
-		transaction_runner(func)
-		return True
-
-	transaction.get().addAfterCommitHook(
-					lambda success: success and gevent.spawn(_process_event))
+	delete_userdata(username)
 
 # on change listener
 
