@@ -3,11 +3,11 @@
 """
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
-
 
 from zope import interface
 
@@ -93,5 +93,4 @@ class _DefaultQueryParser(object):
 		if user:
 			usernames = get_usernames_of_dynamic_memberships(user)
 			result = result & Any(catalog[acl_], list(usernames))
-
 		return result

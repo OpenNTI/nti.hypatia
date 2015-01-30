@@ -5,6 +5,7 @@ Directives to be used in ZCML
 
 .. $Id$
 """
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 __docformat__ = "restructuredtext en"
 
@@ -14,10 +15,10 @@ from zope import interface
 from zope import component
 from zope.component.zcml import utility
 
-from . import process_queue
-
 from .interfaces import ISearchCatalogQueue
 from .interfaces import ISearchCatalogQueueFactory
+
+from . import process_queue
 
 @interface.implementer(ISearchCatalogQueue)
 class ImmediateQueueRunner(object):
