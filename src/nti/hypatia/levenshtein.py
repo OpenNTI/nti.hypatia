@@ -109,4 +109,3 @@ try:
 except ImportError:  # PyPy
 	ratio = nltk_ratio
 	distance = edit_distance
-	

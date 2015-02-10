@@ -12,13 +12,11 @@
 	<include package="." file="meta.zcml" />
 	
 	<!-- Generations -->
-
 	<utility factory=".generations.install._HypatiaSearchSchemaManager"
 			 name="nti.dataserver-hypatia"
 			 provides="zope.generations.interfaces.IInstallableSchemaManager"/>
 
 	<!-- Subscribers -->
-
 	<subscriber handler=".subscribers._user_deleted" />
 
 	<subscriber handler=".subscribers._object_added"
@@ -33,20 +31,17 @@
 	<subscriber handler=".subscribers.onChange" />
 
 	<!-- Adapters -->
-
 	<adapter factory=".adapters._HypatiaUserIndexController"
 			 for="nti.dataserver.interfaces.IUser"
 			 provides=".interfaces.IHypatiaUserIndexController" />
 
 	<!-- Search Query -->
-
 	<utility factory=".query._DefaultQueryParser" />
 	<utility factory=".query._DefaultQueryParser" name="en" />
 	<utility factory=".query._DefaultQueryParser" name="es" />
 	<utility factory=".query._DefaultQueryParser" name="ru" />
 		
 	<!-- Register queue -->
-
 	<configure zcml:condition="have testmode">
 		<hypatia:registerImmediateProcessingQueue />
 	</configure>

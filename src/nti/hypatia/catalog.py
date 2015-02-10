@@ -21,6 +21,8 @@ from hypatia.catalog import Catalog
 from hypatia.catalog import CatalogQuery
 from hypatia.text.cosineindex import CosineIndex
 
+from nti.common.property import Lazy
+
 from nti.contentsearch.discriminators import get_acl
 from nti.contentsearch.discriminators import get_tags
 from nti.contentsearch.discriminators import get_creator
@@ -37,8 +39,6 @@ from nti.contentsearch.constants import redactionExplanation_, replacementConten
 from nti.contentsearch.constants import content_, ngrams_, title_, tags_, keywords_
 
 from nti.dataserver import metadata_index
-
-from nti.utils.property import Lazy
 
 from .lexicon import defaultLexicon
 
