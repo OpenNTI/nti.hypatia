@@ -24,7 +24,7 @@ setup(
 	description="NTI search hypatia",
 	long_description=codecs.open('README.rst', encoding='utf-8').read(),
 	license='Proprietary',
-	keywords='pyramid preference',
+	keywords='Search indexing',
 	classifiers=[
 		'Intended Audience :: Developers',
 		'Natural Language :: English',
