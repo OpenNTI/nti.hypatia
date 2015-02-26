@@ -15,6 +15,7 @@ from hypatia.text.interfaces import IPipelineElement
 from hypatia.text.lexicon import Lexicon, CaseNormalizer, Splitter
 
 from .interfaces import ISearchLexicon
+
 from .levenshtein import ratio as levenshtein_ratio
 
 @interface.implementer(IPipelineElement)
