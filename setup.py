@@ -36,7 +36,7 @@ setup(
 		'setuptools',
 		'hypatia',
 		'zc.catalogqueue',
-		'zopyx.txng3.ext' if not IS_PYPY else '' # extensions dont build
+		'zopyx.txng3.ext'
 	],
 	entry_points=entry_points
 )
