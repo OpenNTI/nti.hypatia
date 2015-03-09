@@ -26,4 +26,3 @@ class TestModeled(unittest.TestCase):
 	def test_is_indexable(self):
 		assert_that(is_indexable(Note()), is_(True))
 		assert_that(is_indexable(Canvas()), is_(False))
-		

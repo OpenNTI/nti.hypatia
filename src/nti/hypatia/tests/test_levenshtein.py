@@ -40,4 +40,3 @@ class TestLevenshtein(unittest.TestCase):
 	def test_nltk_ratio(self):
 		r = nltk_ratio('ichigo', 'ichi')
 		assert_that(r, is_(close_to(0.8, 0.01)))
-
