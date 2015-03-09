@@ -98,4 +98,3 @@ class TestSubcribers(unittest.TestCase):
 		subscribers.delete_userdata("n1@nti.com")
 		assert_that(aclIndex.search("n1@nti.com"), has_length(1))
 		assert_that(cretorIndex.apply("n1@nti.com",), has_length(0))
-		
