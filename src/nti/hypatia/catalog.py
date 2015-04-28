@@ -9,7 +9,6 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-import sys
 from zope import component
 from zope import interface
 
@@ -150,16 +149,16 @@ class SearchCatalogQuery(CatalogQuery):
 
 	def query_metadata_index(self, index, dateRange, mapped=None):
 		mapped = {} if mapped is None else mapped
-		# query meta-data index
-		startTime = dateRange.startTime or 0
-		endTime = dateRange.endTime or sys.maxint
-		docs = index.apply({'between': (startTime, endTime, True, True)})
+		## query meta-data index
+		endTime = dateRange.endTime
+		startTime = dateRange.startTime
+		docs = index.apply({'between': (startTime, endTime)})
 
-		# intersect result documents with previous docs
+		## intersect result documents with previous docs
 		keys = self.family.IF.LFSet(mapped.iterkeys())
 		intersected = self.family.IF.intersection(docs, keys)
 
-		# return new result map (docid, score)
+		## return new result map (docid, score)
 		mapped = {x:mapped[x] for x in intersected} if intersected else {}
 		numdocs = len(mapped)
 		return numdocs, mapped
@@ -169,7 +168,7 @@ class SearchCatalogQuery(CatalogQuery):
 		modificationTime = self.search_query.modificationTime
 
 		if creationTime is not None or modificationTime is not None:
-			# if sort_index is used the sort order is lost
+			## if sort_index is used the sort order is lost
 			result = to_map(result)
 			if creationTime is not None:
 				index = self.metadata[metadata_index.IX_CREATEDTIME]
