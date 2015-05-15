@@ -24,7 +24,7 @@ from ZODB.interfaces import IDatabase
 from nti.dataserver.utils import open_all_databases
 from nti.dataserver.utils import run_with_dataserver
 from nti.dataserver.utils.base_script import create_context
-	
+
 from nti.hypatia.reactor import IndexReactor
 from nti.hypatia.reactor import MIN_WAIT_TIME
 from nti.hypatia.reactor import MAX_WAIT_TIME
@@ -73,7 +73,7 @@ def main():
 							 help="Queue limit",
 							 type=int,
 							 default=DEFAULT_QUEUE_LIMIT)
-	arg_parser.add_argument('--pke', help="Don't ignore POSKeyErrors", 
+	arg_parser.add_argument('--pke', help="Don't ignore POSKeyErrors",
 							 action='store_true',
 							 dest='allow_pke')
 
@@ -102,25 +102,25 @@ def _process_args(args):
 
 	limit = args.limit
 	assert limit > 0
-	
+
 	retries = args.retries
 	assert retries >= 1 and retries <= 5
 
 	sleep = args.sleep
 	assert sleep >= 0 and sleep <= 10
 
-	ignore_pke = not args.allow_pke 
+	ignore_pke = not args.allow_pke
 	mintime = min(max(mintime, MIN_WAIT_TIME), MAX_WAIT_TIME)
 	maxtime = max(min(maxtime, MAX_WAIT_TIME), MIN_WAIT_TIME)
 
 	ei = '%(asctime)s %(levelname)-5.5s [%(name)s][%(thread)d][%(threadName)s] %(message)s'
 	logging.root.handlers[0].setFormatter(zope.exceptions.log.Formatter(ei))
-	
-	## open connections to all databases
-	## so they can be recycled in the connection pool
+
+	# open connections to all databases
+	# so they can be recycled in the connection pool
 	db = component.getUtility(IDatabase)
 	open_all_databases(db, close_children=False)
-	
+
 	target = IndexReactor(min_time=mintime, max_time=maxtime, limit=limit,
 						  ignore_pke=ignore_pke, retries=retries, sleep=sleep)
 	result = target(time.sleep)

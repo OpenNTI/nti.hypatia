@@ -118,7 +118,7 @@ class _HypatiaUserIndexController(object):
 		query = ISearchQuery(query)
 		store = get_or_create_search_results(query, store)
 		return self.do_search(query, store)
-		
+
 	def suggest(self, query, store=None, **kwargs):
 		query = ISearchQuery(query)
 		results = get_or_create_suggest_results(query, store)
@@ -128,7 +128,7 @@ class _HypatiaUserIndexController(object):
 		threshold = query.threshold
 		prefix = query.prefix or len(query.term)
 		textfield = search_catalog()[content_]  # lexicon is shared
-		
+
 		words = textfield.lexicon.get_similiar_words(term=query.term,
 												  	 threshold=threshold,
 												 	 common_length=prefix)

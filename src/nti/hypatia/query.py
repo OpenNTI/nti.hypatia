@@ -85,7 +85,7 @@ class _DefaultQueryParser(object):
 		creator = query.creator
 		if creator:
 			result = result & Eq(catalog[creator_], creator)
-			
+
 		if type_query is not None:
 			result = result & type_query
 

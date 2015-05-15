@@ -29,33 +29,33 @@ from .interfaces import ISearchCatalogQueue
 from .interfaces import ISearchCatalogEventQueue
 
 class _ProxyMap(Mapping):
-	
+
 	__slots__ = ('_data',)
-	
+
 	def __init__(self, data):
 		self._data = data
-		
+
 	def __getitem__(self, key):
 		return self._data[key]
-	
+
 	def __len__(self):
 		return len(self._data)
-	
+
 	def __iter__(self):
 		return iter(self._data)
 
 	def items(self):
 		for k, v in self._data.items():
-			__traceback_info__ = k,v
-			yield k,v
-		
+			__traceback_info__ = k, v
+			yield k, v
+
 @interface.implementer(ISearchCatalogEventQueue)
 class SearchCatalogEventQueue(Contained, CatalogEventQueue):
-	
+
 	def process(self, limit=None):
 		result = super(SearchCatalogEventQueue, self).process(limit)
 		return _ProxyMap(result)
-	
+
 	def keys(self):
 		result = list(self._data.keys())
 		return result
@@ -75,7 +75,7 @@ class SearchCatalogQueue(Contained, CatalogQueue):
 			queue.__name__ = str(i)
 			queue.__parent__ = self
 			self._queues.append(queue)
-			
+
 	@property
 	def buckets(self):
 		return self._buckets
@@ -109,10 +109,10 @@ class SearchCatalogQueue(Contained, CatalogQueue):
 		for queue in self._queues:
 			for key in queue.keys():
 				yield key
-	
+
 	def keys(self):
 		return list(self.iterkeys())
-	
+
 	def __getitem__(self, idx):
 		return self._queues[idx]
 
@@ -122,11 +122,11 @@ class SearchCatalogQueue(Contained, CatalogQueue):
 	def __str__(self):
 		return "%s(%s)" % (self.__class__.__name__, self._buckets)
 	__repr__ = __str__
-	
+
 	def process(self, ids, catalogs, limit, ignore_pke=True):
 		done = 0
 		for queue in self._queues:
-			for uid, (_, event) in queue.process(limit-done).iteritems():
+			for uid, (_, event) in queue.process(limit - done).iteritems():
 				try:
 					if event is REMOVED:
 						for catalog in catalogs:

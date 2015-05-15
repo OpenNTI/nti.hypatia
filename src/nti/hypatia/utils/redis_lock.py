@@ -29,13 +29,13 @@ class Lock(object):
 
 	_tok = None
 	_expire = None
-	
+
 	def __init__(self, redis_client, name, expire=None):
 		self._client = redis_client
 		self._name = 'lock:' + name
 		self._signal = 'lock-signal:' + name
 		if expire is not None:
-			self._expire= int(expire)
+			self._expire = int(expire)
 
 	def __enter__(self, blocking=True):
 		logger.log(loglevels.TRACE, "Getting %r ...", self._name)

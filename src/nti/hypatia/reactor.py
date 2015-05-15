@@ -64,7 +64,7 @@ def process_index_msgs(ignore_pke=True,
 	except (UnableToAcquireCommitLock, ConflictError) as e:
 		logger.error(e)
 		result = CONFLICT_ERROR_RT
-	except (TypeError, StandardError): # Cache errors?
+	except (TypeError, StandardError):  # Cache errors?
 		logger.exception('Cannot process index messages')
 		raise
 	return result
@@ -75,12 +75,12 @@ class IndexReactor(object):
 	# transaction runner
 	sleep = DEFAULT_SLEEP
 	retries = DEFAULT_RETRIES
-	
+
 	stop = False
 	start_time = 0
 	processor = pid = None
 
-	def __init__(self, min_time=None, max_time=None, limit=None, 
+	def __init__(self, min_time=None, max_time=None, limit=None,
 				 ignore_pke=True, retries=None, sleep=None):
 		self.retries = retries or DEFAULT_RETRIES
 		self.limit = limit or DEFAULT_QUEUE_LIMIT
@@ -88,7 +88,7 @@ class IndexReactor(object):
 		self.max_wait_time = max_time or MAX_WAIT_TIME
 		self.sleep = DEFAULT_SLEEP if sleep is None else sleep
 		self.ignore_pke = True if ignore_pke is None else ignore_pke
-				
+
 	def __repr__(self):
 		return "%s" % (self.__class__.__name__.lower())
 
@@ -99,7 +99,7 @@ class IndexReactor(object):
 		if self.processor is None:
 			self.processor = self._spawn_index_processor()
 		return self
-	
+
 	def run(self, sleep=gevent.sleep):
 		result = 0
 		self.stop = False
@@ -118,9 +118,9 @@ class IndexReactor(object):
 												 	retries=self.retries,
 												 	ignore_pke=self.ignore_pke)
 						duration = time.time() - start
-						if result == 0: # no work
+						if result == 0:  # no work
 							batch_size = self.limit  # reset to default
-							secs = generator.randint(self.min_wait_time, 
+							secs = generator.randint(self.min_wait_time,
 													 self.max_wait_time)
 							duration = secs
 						elif result < 0:  # conflict error/exception
@@ -136,10 +136,10 @@ class IndexReactor(object):
 						else:
 							half = batch_size * .5
 							batch_size = max(MIN_BATCH_SIZE, int(half / duration))
-							secs = generator.randint(self.min_wait_time, 
+							secs = generator.randint(self.min_wait_time,
 													 self.max_wait_time)
 							duration = secs
-							
+
 						logger.log(loglevels.TRACE, "Sleeping %s(secs). Batch size %s",
 								   duration, batch_size)
 						sleep(duration)
@@ -154,7 +154,7 @@ class IndexReactor(object):
 					logger.exception("%s could not connect to redis", self.pid)
 					break
 				except (TypeError, ValueError, StandardError):
-					result = 77 # Cache errors?
+					result = 77  # Cache errors?
 					break
 				except:
 					logger.exception("Unhandled exception")

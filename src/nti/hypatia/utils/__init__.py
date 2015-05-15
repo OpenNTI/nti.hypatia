@@ -36,7 +36,7 @@ def _is_indexable_and_valid_object(obj, usernames=(), resolve=True):
 
 	if not is_indexable(obj):
 		return False
-	
+
 	if usernames:
 		# get the object creator to try to trigger a POSError if the object is invalid
 		creator = getattr(obj, 'creator', None) or u''
@@ -44,12 +44,12 @@ def _is_indexable_and_valid_object(obj, usernames=(), resolve=True):
 		if  not isinstance(username, six.string_types) or \
 			username.lower() not in usernames:
 			return False
-	
+
 	if resolve:
 		# resolve the content to try trigger POSError if the object is invalid
 		IContentResolver(obj).content
 	return True
-		
+
 def all_indexable_objects_iids(users=(), resolve=True):
 	obj = None
 	intids = component.getUtility(zope.intid.IIntIds)
@@ -79,12 +79,12 @@ def all_cataloged_objects(users=(), sharedWith=False, resolve=True):
 		except (POSError, TypeError, AttributeError) as e:
 			logger.error("Ignoring %s(%s); %s", type(obj), uid, e)
 		return None
-			
+
 	for uid in intids_created_by:
 		obj = _validate(uid)
 		if obj is not None:
 			yield uid, obj
-				
+
 	if usernames and sharedWith:
 		intids_sharedWith = catalog[IX_SHAREDWITH].apply({'any_of': usernames})
 	else:

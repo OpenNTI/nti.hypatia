@@ -88,9 +88,9 @@ def create_catalog(lexicon=None, ngram_lexicon=None, family=BTrees.family64):
 	index = CosineIndex(lexicon=lexicon, family=family)
 	result[title_] = \
 				SearchTextIndex(lexicon=lexicon,
-							    index=index,
-							    discriminator=get_title_and_ngrams,
-							    family=family)
+								index=index,
+								discriminator=get_title_and_ngrams,
+								family=family)
 
 	index = CosineIndex(lexicon=lexicon, family=family)
 	result[redactionExplanation_] = \
@@ -108,19 +108,19 @@ def create_catalog(lexicon=None, ngram_lexicon=None, family=BTrees.family64):
 
 	result[creator_] = SearchFieldIndex(discriminator=get_creator,
 								  		family=family)
-	
+
 	result[acl_] = SearchKeywordIndex(discriminator=get_acl,
 									  family=family)
 
 	return result
 
 class _proxy(object):
-	
+
 	__slots__ = ('_seq',)
-	
+
 	def __init__(self, seq):
 		self._seq = seq
-		
+
 	def items(self):
 		for x in self._seq:
 			yield x, 1.0
@@ -136,29 +136,29 @@ def to_map(source):
 
 @interface.implementer(ISearchCatalogQuery)
 class SearchCatalogQuery(CatalogQuery):
-	
+
 	family = BTrees.family64
 
 	def __init__(self, catalog, search_query, family=None):
 		super(SearchCatalogQuery, self).__init__(catalog, family)
 		self.search_query = search_query
-		
+
 	@Lazy
 	def metadata(self):
 		return component.getUtility(ZOPE_ICATALOG, name=metadata_index.CATALOG_NAME)
 
 	def query_metadata_index(self, index, dateRange, mapped=None):
 		mapped = {} if mapped is None else mapped
-		## query meta-data index
+		# query meta-data index
 		endTime = dateRange.endTime
 		startTime = dateRange.startTime
 		docs = index.apply({'between': (startTime, endTime)})
 
-		## intersect result documents with previous docs
+		# intersect result documents with previous docs
 		keys = self.family.IF.LFSet(mapped.iterkeys())
 		intersected = self.family.IF.intersection(docs, keys)
 
-		## return new result map (docid, score)
+		# return new result map (docid, score)
 		mapped = {x:mapped[x] for x in intersected} if intersected else {}
 		numdocs = len(mapped)
 		return numdocs, mapped
@@ -168,7 +168,7 @@ class SearchCatalogQuery(CatalogQuery):
 		modificationTime = self.search_query.modificationTime
 
 		if creationTime is not None or modificationTime is not None:
-			## if sort_index is used the sort order is lost
+			# if sort_index is used the sort order is lost
 			result = to_map(result)
 			if creationTime is not None:
 				index = self.metadata[metadata_index.IX_CREATEDTIME]
@@ -186,9 +186,9 @@ class SearchCatalogQuery(CatalogQuery):
 		numdocs, result = super(SearchCatalogQuery, self).search(**query)
 		numdocs, result = self.query_by_time(numdocs, result)
 		return numdocs, result
-	
+
 	def query(self, queryobject, sort_index=None, limit=None, sort_type=None,
-              reverse=False, names=None):
+			  reverse=False, names=None):
 		numdocs, result = super(SearchCatalogQuery, self).query(queryobject=queryobject,
 																sort_index=sort_index,
 																limit=limit,

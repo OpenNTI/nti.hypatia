@@ -19,7 +19,7 @@ __docformat__ = "restructuredtext en"
 logger = __import__('logging').getLogger(__name__)
 
 import repoze.lru
-	
+
 """
 Distance Metrics.
 
@@ -36,9 +36,9 @@ def _edit_dist_init(len1, len2):
 	for i in range(len1):
 		lev.append([0] * len2)  # initialize 2-D array to zero
 	for i in range(len1):
-		lev[i][0] = i		   # column 0: 0,1,2,3,4,...
+		lev[i][0] = i  # column 0: 0,1,2,3,4,...
 	for j in range(len2):
-		lev[0][j] = j		   # row 0: 0,1,2,3,4,...
+		lev[0][j] = j  # row 0: 0,1,2,3,4,...
 	return lev
 
 def _edit_dist_step(lev, i, j, s1, s2, transpositions=False):
@@ -96,7 +96,7 @@ def edit_distance(s1, s2, transpositions=False):
 def nltk_ratio(s1, s2):
 	d = edit_distance(s1, s2, True)
 	lensum = len(s1) + len(s2)
-	result = (lensum - d)/float(lensum)
+	result = (lensum - d) / float(lensum)
 	return result
 
 try:

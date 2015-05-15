@@ -86,7 +86,7 @@ class ISearchTextIndex(interface.Interface):
 	"""
 	marker interface for text indices
 	"""
-	
+
 class ISearchTimeFieldIndex(interface.Interface):
 	pass
 
@@ -108,6 +108,6 @@ class ISearchCatalogQueueFactory(interface.Interface):
 	"""
 	A factory for search queues.
 	"""
-	
+
 class IHypatiaUserIndexController(IEntityIndexController):
 	pass

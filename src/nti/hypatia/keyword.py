@@ -61,7 +61,7 @@ class SearchKeywordIndex(KeywordIndex):
 		else:
 			return Set()
 	strictEq = strict_eq
-	
+
 	def remove_word(self, word):
 		result = []
 		docids = self._fwd_index.get(word)

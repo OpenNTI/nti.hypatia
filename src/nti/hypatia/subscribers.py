@@ -91,7 +91,7 @@ def delete_userdata(username):
 		docids = crIndex._fwd_index[username]
 		for docid in list(docids or ()):
 			crIndex.unindex_doc(docid)
-	except KeyError: # pragma no cover
+	except KeyError:  # pragma no cover
 		pass
 
 @component.adapter(IUser, IObjectRemovedEvent)

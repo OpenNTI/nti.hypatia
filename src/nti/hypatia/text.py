@@ -19,7 +19,7 @@ from .interfaces import ISearchTextIndex
 
 @interface.implementer(ISearchTextIndex)
 class SearchTextIndex(TextIndex):
-	
+
 	@classmethod
 	def createFromTextIndex(cls, index):
 		result = cls(discriminator=index.discriminator,
@@ -27,7 +27,7 @@ class SearchTextIndex(TextIndex):
 					 index=index.index,
 					 family=index.family)
 		# reuse internal fields
-		result._not_indexed = index._not_indexed 
+		result._not_indexed = index._not_indexed
 		return result
 
 class SourceBaseIndexMixin(object):
@@ -46,7 +46,7 @@ class SourceBaseIndexMixin(object):
 
 	def unindex_doc(self, docid):
 		super(SourceBaseIndexMixin, self).unindex_doc(docid)
-		if docid in self._textsource: 
+		if docid in self._textsource:
 			del self._textsource[docid]
 
 	def text_source(self, docid):
