@@ -11,14 +11,11 @@ logger = __import__('logging').getLogger(__name__)
 
 import six
 
-import zope.intid
-
 from zope import component
+
 from zope.catalog.interfaces import ICatalog
 
-from ZODB.POSException import POSError
-
-from nti.contentsearch.interfaces import IContentResolver
+from zope.intid import IIntIds
 
 from nti.dataserver.interfaces import IDeletedObjectPlaceholder
 
@@ -30,7 +27,9 @@ from nti.externalization.oids import to_external_oid
 
 from nti.hypatia import is_indexable
 
-def _is_indexable_and_valid_object(obj, usernames=(), resolve=True):
+from nti.zodb import isBroken
+
+def _is_indexable_and_valid_object(obj, usernames=(), *args, **kwargs):
 	if IDeletedObjectPlaceholder.providedBy(obj):
 		return False
 
@@ -44,26 +43,22 @@ def _is_indexable_and_valid_object(obj, usernames=(), resolve=True):
 		if  not isinstance(username, six.string_types) or \
 			username.lower() not in usernames:
 			return False
-
-	if resolve:
-		# resolve the content to try trigger POSError if the object is invalid
-		IContentResolver(obj).content
 	return True
 
-def all_indexable_objects_iids(users=(), resolve=True):
+def all_indexable_objects_iids(users=(), *args, **kwargs):
 	obj = None
-	intids = component.getUtility(zope.intid.IIntIds)
+	intids = component.getUtility(IIntIds)
 	usernames = {getattr(user, 'username', user).lower() for user in users or ()}
 	for uid in intids:
 		try:
-			obj = intids.getObject(uid)
-			if _is_indexable_and_valid_object(obj, usernames, resolve=resolve):
+			obj = intids.queryObject(uid)
+			if not isBroken(obj, uid) and _is_indexable_and_valid_object(obj, usernames):
 				yield uid, obj
-		except (POSError, TypeError, AttributeError) as e:
+		except AttributeError as e:
 			logger.error("Ignoring %s(%s); %s", type(obj), uid, e)
 
-def all_cataloged_objects(users=(), sharedWith=False, resolve=True):
-	intids = component.getUtility(zope.intid.IIntIds)
+def all_cataloged_objects(users=(), sharedWith=False, *args, **kwargs):
+	intids = component.getUtility(IIntIds)
 	catalog = component.getUtility(ICatalog, METADATA_CATALOG_NAME)
 	usernames = {getattr(user, 'username', user).lower() for user in users or ()}
 	if usernames:
@@ -73,15 +68,15 @@ def all_cataloged_objects(users=(), sharedWith=False, resolve=True):
 
 	def _validate(uid):
 		try:
-			obj = intids.getObject(uid)
-			if 	_is_indexable_and_valid_object(obj, resolve=resolve):
+			obj = intids.queryObject(uid)
+			if not isBroken(obj, uid) and _is_indexable_and_valid_object(obj):
 				return obj
-		except (POSError, TypeError, AttributeError) as e:
+		except AttributeError as e:
 			logger.error("Ignoring %s(%s); %s", type(obj), uid, e)
 		return None
 
 	for uid in intids_created_by:
-		obj = _validate(uid)
+		obj = intids.queryObject(uid)
 		if obj is not None:
 			yield uid, obj
 

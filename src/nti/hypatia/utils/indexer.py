@@ -45,7 +45,7 @@ signal.signal(signal.SIGTERM, handler)
 signal.signal(signal.SIGINT, sigint_handler)
 
 def main():
-	arg_parser = argparse.ArgumentParser(description="Index processor")
+	arg_parser = argparse.ArgumentParser(description="Hypatia index processor")
 	arg_parser.add_argument('-v', '--verbose', help="Be verbose", action='store_true',
 							 dest='verbose')
 	arg_parser.add_argument('-r', '--retries',
