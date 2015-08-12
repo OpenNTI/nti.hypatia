@@ -11,7 +11,11 @@ logger = __import__('logging').getLogger(__name__)
 
 from zope import interface
 
+from zope.deprecation import deprecated
+
 import BTrees
+
+from persistent import Persistent
 
 from hypatia.field import FieldIndex
 
@@ -32,3 +36,7 @@ class SearchFieldIndex(FieldIndex):
 		result._rev_index = index._rev_index
 		result._not_indexed = index._not_indexed
 		return result
+	
+deprecated('SearchTimeFieldIndex', 'No longer used')
+class SearchTimeFieldIndex(Persistent):
+	pass
