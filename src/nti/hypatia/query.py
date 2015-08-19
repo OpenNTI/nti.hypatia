@@ -20,7 +20,7 @@ from nti.contentsearch.interfaces import ISearchQuery
 from nti.contentsearch.content_utils import is_covered_by_ngram_computer
 
 from nti.contentsearch.constants import replacementContent_
-from nti.contentsearch.constants import content_, ngrams_, title_, tags_, keywords_
+from nti.contentsearch.constants import content_, title_, tags_, keywords_
 from nti.contentsearch.constants import acl_, redactionExplanation_, type_, creator_
 
 from . import get_user
@@ -72,12 +72,12 @@ class _DefaultQueryParser(object):
 		# tags & keywords
 		result = Any(catalog[tags_], [term]) | Any(catalog[keywords_], [term])
 
-		fields = (title_, redactionExplanation_, replacementContent_)
-		if 	query.is_prefix_search or query.is_phrase_search or \
-			not can_use_ngram_field(query):
-			fields += (content_,)
-		else:
-			fields += (ngrams_,)
+		fields = (title_, redactionExplanation_, replacementContent_, content_)
+# 		if 	query.is_prefix_search or query.is_phrase_search or \
+# 			not can_use_ngram_field(query):
+# 			fields += (content_,)
+# 		else:
+# 			fields += (ngrams_,)
 
 		for field in fields:
 			result = result | Contains(catalog[field], term)
