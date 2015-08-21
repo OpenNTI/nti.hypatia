@@ -12,9 +12,13 @@ logger = __import__('logging').getLogger(__name__)
 from zope import component
 from zope import interface
 
+from zope.intid import IIntIds
+
 from perfmetrics import metricmethod
 
 from hypatia.text.parsetree import ParseError
+
+from nti.common.property import Lazy
 
 from nti.contentprocessing import rank_words
 
@@ -35,6 +39,7 @@ from nti.dataserver.interfaces import IReadableShared
 from nti.dataserver.interfaces import IDeletedObjectPlaceholder
 
 from .catalog import SearchCatalogQuery
+
 from .interfaces import ISearchQueryParser
 
 from . import search_queue
@@ -55,6 +60,10 @@ class _HypatiaUserIndexController(object):
 	def username(self):
 		return self.entity.username
 
+	@Lazy
+	def intids(self):
+		return component.getUtility(IIntIds)
+
 	def verify_access(self, obj):
 		result = obj.isSharedDirectlyWith(self.entity) \
 				 if IReadableShared.providedBy(obj) else False
@@ -65,7 +74,7 @@ class _HypatiaUserIndexController(object):
 		return result
 
 	def get_object(self, uid):
-		result = query_object(uid)
+		result = query_object(uid, intids=self.intids)
 		if result is None:
 			logger.debug('Could not find object with id %r' % uid)
 			try:
