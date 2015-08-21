@@ -62,7 +62,7 @@ class _HypatiaUserIndexController(object):
 
 	@Lazy
 	def intids(self):
-		return component.getUtility(IIntIds)
+		return component.queryUtility(IIntIds)
 
 	def verify_access(self, obj):
 		result = obj.isSharedDirectlyWith(self.entity) \
