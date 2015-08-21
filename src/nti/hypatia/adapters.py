@@ -50,8 +50,6 @@ from . import get_usernames_of_dynamic_memberships
 @interface.implementer(IEntityIndexController)
 class _HypatiaUserIndexController(object):
 
-	__slots__ = ('entity', 'memberships')
-
 	def __init__(self, entity):
 		self.entity = entity
 		self.memberships = get_usernames_of_dynamic_memberships(self.entity)
