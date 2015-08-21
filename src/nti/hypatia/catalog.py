@@ -59,7 +59,7 @@ def get_type(obj, default=None):
 
 def create_catalog(lexicon=None, ngram_lexicon=None, family=BTrees.family64):
 	lexicon = defaultLexicon() if lexicon is None else lexicon
-	ngram_lexicon = lexicon if ngram_lexicon is None else ngram_lexicon
+	ngram_lexicon = defaultLexicon() if ngram_lexicon is None else ngram_lexicon
 
 	result = SearchCatalog(family=family)
 
