@@ -14,7 +14,7 @@ import itertools
 
 from zope import component
 
-import zope.intid
+from zope.intid import IIntIds
 
 from nti.contentsearch.interfaces import ITypeResolver
 
@@ -58,9 +58,8 @@ def queue_length(queue=None):
 		logger.error("Could not compute queue length")
 	return result
 
-def process_queue(queue=None, limit=DEFAULT_QUEUE_LIMIT, sync_queue=True,
-				  ignore_pke=True):
-	ids = component.getUtility(zope.intid.IIntIds)
+def process_queue(queue=None, limit=DEFAULT_QUEUE_LIMIT, sync_queue=True, ignore_pke=True):
+	ids = component.getUtility(IIntIds)
 	catalog = component.getUtility(ISearchCatalog)
 
 	queue = search_queue() if queue is None else queue
