@@ -73,6 +73,7 @@ class _DefaultQueryParser(object):
 		result = Any(catalog[tags_], [term]) | Any(catalog[keywords_], [term])
 
 		fields = (title_, redactionExplanation_, replacementContent_, content_)
+
 		# CS: 20150819 - Remove ngram searching for performance reasons
 		# if query.is_prefix_search or query.is_phrase_search or \
 		# 	 not can_use_ngram_field(query):
