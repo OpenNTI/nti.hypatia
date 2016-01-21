@@ -15,16 +15,18 @@ generation = 8
 
 from zope.generations.generations import SchemaManager
 
-import zope.intid
+from zope.intid.interfaces import IIntIds
 
-from ..catalog import create_catalog
-from ..lexicon import defaultLexicon
-from ..queue import SearchCatalogQueue
+from nti.hypatia.catalog import create_catalog
 
-from ..interfaces import ISearchCatalog
-from ..interfaces import ISearchCatalogQueue
+from nti.hypatia.generations import evolve2
 
-from . import evolve2
+from nti.hypatia.interfaces import ISearchCatalog
+from nti.hypatia.interfaces import ISearchCatalogQueue
+
+from nti.hypatia.lexicon import defaultLexicon
+
+from nti.hypatia.queue import SearchCatalogQueue
 
 class _HypatiaSearchSchemaManager(SchemaManager):
 	"""
@@ -36,7 +38,7 @@ class _HypatiaSearchSchemaManager(SchemaManager):
 												minimum_generation=generation,
 												package_name='nti.hypatia.generations')
 def evolve(context):
-	# ### from IPython.core.debugger import Tracer; Tracer()()
+	#### from IPython.core.debugger import Tracer; Tracer()()
 	install_queue(context)
 	install_hypatia(context)
 	evolve2.do_evolve(context, False)  # go to version 2
@@ -47,7 +49,7 @@ def install_hypatia(context):
 
 	dataserver_folder = root['nti.dataserver']
 	lsm = dataserver_folder.getSiteManager()
-	intids = lsm.getUtility(zope.intid.IIntIds)
+	intids = lsm.getUtility(IIntIds)
 
 	lexicon = defaultLexicon()
 
@@ -65,7 +67,7 @@ def install_queue(context):
 
 	dataserver_folder = root['nti.dataserver']
 	lsm = dataserver_folder.getSiteManager()
-	intids = lsm.getUtility(zope.intid.IIntIds)
+	intids = lsm.getUtility(IIntIds)
 
 	queue = SearchCatalogQueue()
 	queue.__parent__ = dataserver_folder
