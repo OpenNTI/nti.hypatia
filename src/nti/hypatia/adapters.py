@@ -61,7 +61,6 @@ class _HypatiaUserIndexController(object):
 
 	def __init__(self, entity):
 		self.entity = entity
-		self.memberships = get_usernames_of_dynamic_memberships(self.entity)
 
 	@Lazy
 	def username(self):
@@ -71,6 +70,10 @@ class _HypatiaUserIndexController(object):
 	def intids(self):
 		return component.queryUtility(IIntIds)
 
+	@Lazy
+	def memberships(self):
+		return get_usernames_of_dynamic_memberships(self.entity)
+	
 	@Lazy
 	def effective_principals(self):
 		return effective_principals(self.username, everyone=False, skip_cache=True)
