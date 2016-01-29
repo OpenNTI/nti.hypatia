@@ -12,7 +12,7 @@ logger = __import__('logging').getLogger(__name__)
 from zope import component
 from zope import interface
 
-from zope.intid import IIntIds
+from zope.intid.interfaces import IIntIds
 
 from perfmetrics import metricmethod
 
@@ -22,29 +22,36 @@ from nti.common.property import Lazy
 
 from nti.contentprocessing import rank_words
 
+from nti.contentsearch.common import get_ugd_indexable_types
+
+from nti.contentsearch.constants import content_
+
 from nti.contentsearch.discriminators import get_acl
 from nti.contentsearch.discriminators import query_object
 
-from nti.contentsearch.constants import content_
-from nti.contentsearch.common import get_ugd_indexable_types
-
 from nti.contentsearch.interfaces import ISearchQuery
 from nti.contentsearch.interfaces import IEntityIndexController
+
 from nti.contentsearch.search_results import get_or_create_search_results
 from nti.contentsearch.search_results import get_or_create_suggest_results
 from nti.contentsearch.search_results import get_or_create_suggest_and_search_results
+
+from nti.dataserver.authorization import ACT_READ
+from nti.dataserver.authorization_acl import has_permission
+
+from nti.dataserver.contenttypes.forums.interfaces import IPublishableTopic
 
 from nti.dataserver.interfaces import IUser
 from nti.dataserver.interfaces import IReadableShared
 from nti.dataserver.interfaces import IDeletedObjectPlaceholder
 
-from .catalog import SearchCatalogQuery
+from nti.hypatia.catalog import SearchCatalogQuery
 
-from .interfaces import ISearchQueryParser
+from nti.hypatia.interfaces import ISearchQueryParser
 
-from . import search_queue
-from . import search_catalog
-from . import get_usernames_of_dynamic_memberships
+from nti.hypatia import search_queue
+from nti.hypatia import search_catalog
+from nti.hypatia import get_usernames_of_dynamic_memberships
 
 @component.adapter(IUser)
 @interface.implementer(IEntityIndexController)
@@ -66,8 +73,11 @@ class _HypatiaUserIndexController(object):
 		result = obj.isSharedDirectlyWith(self.entity) \
 				 if IReadableShared.providedBy(obj) else False
 		if not result:
-			acl = set(get_acl(obj, ()))
-			result = self.memberships.intersection(acl)
+			if IPublishableTopic.providedBy(obj):
+				result = has_permission(ACT_READ, obj, self.username)
+			else:
+				acl = set(get_acl(obj, ()))
+				result = self.memberships.intersection(acl)
 		result = result and not IDeletedObjectPlaceholder.providedBy(obj)
 		return result
 
