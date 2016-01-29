@@ -5,6 +5,7 @@
 """
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+from nti.dataserver.authentication import effective_principals
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -70,6 +71,10 @@ class _HypatiaUserIndexController(object):
 	def intids(self):
 		return component.queryUtility(IIntIds)
 
+	@Lazy
+	def effective_principals(self):
+		return effective_principals(self.username, everyone=False, skip_cache=True)
+	
 	def verify_access(self, obj):
 		result = obj.isSharedDirectlyWith(self.entity) \
 				 if IReadableShared.providedBy(obj) else False
@@ -81,8 +86,7 @@ class _HypatiaUserIndexController(object):
 				result = has_permission(ACT_READ, 
 										to_check, 
 										self.username, 
-										everyone=False,
-										skip_cache=True)
+										principals=self.effective_principals)
 			else:
 				acl = set(get_acl(obj, ()))
 				result = self.memberships.intersection(acl)
