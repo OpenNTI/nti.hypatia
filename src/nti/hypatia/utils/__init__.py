@@ -15,7 +15,7 @@ from zope import component
 
 from zope.catalog.interfaces import ICatalog
 
-from zope.intid import IIntIds
+from zope.intid.interfaces import IIntIds
 
 from nti.dataserver.interfaces import IDeletedObjectPlaceholder
 
