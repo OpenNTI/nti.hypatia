@@ -39,6 +39,7 @@ from nti.contentsearch.search_results import get_or_create_suggest_and_search_re
 from nti.dataserver.authorization import ACT_READ
 from nti.dataserver.authorization_acl import has_permission
 
+from nti.dataserver.contenttypes.forums.interfaces import IHeadlinePost
 from nti.dataserver.contenttypes.forums.interfaces import IPublishableTopic
 
 from nti.dataserver.interfaces import IUser
@@ -73,12 +74,19 @@ class _HypatiaUserIndexController(object):
 		result = obj.isSharedDirectlyWith(self.entity) \
 				 if IReadableShared.providedBy(obj) else False
 		if not result:
-			if IPublishableTopic.providedBy(obj):
-				result = has_permission(ACT_READ, obj, self.username, everyone=False)
+			to_check = obj
+			if IHeadlinePost.providedBy(obj):
+				to_check = to_check.__parent__
+			if IPublishableTopic.providedBy(to_check):
+				result = has_permission(ACT_READ, 
+										to_check, 
+										self.username, 
+										everyone=False,
+										skip_cache=True)
 			else:
 				acl = set(get_acl(obj, ()))
 				result = self.memberships.intersection(acl)
-		result = result and not IDeletedObjectPlaceholder.providedBy(obj)
+		result = bool(result) and not IDeletedObjectPlaceholder.providedBy(obj)
 		return result
 
 	def get_object(self, uid):
