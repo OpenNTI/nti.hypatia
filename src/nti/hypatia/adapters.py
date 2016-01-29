@@ -74,7 +74,7 @@ class _HypatiaUserIndexController(object):
 				 if IReadableShared.providedBy(obj) else False
 		if not result:
 			if IPublishableTopic.providedBy(obj):
-				result = has_permission(ACT_READ, obj, self.username)
+				result = has_permission(ACT_READ, obj, self.username, everyone=False)
 			else:
 				acl = set(get_acl(obj, ()))
 				result = self.memberships.intersection(acl)
