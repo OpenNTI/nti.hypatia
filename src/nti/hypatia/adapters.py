@@ -45,13 +45,13 @@ from nti.dataserver.interfaces import IUser
 from nti.dataserver.interfaces import IReadableShared
 from nti.dataserver.interfaces import IDeletedObjectPlaceholder
 
-from nti.hypatia.catalog import SearchCatalogQuery
-
-from nti.hypatia.interfaces import ISearchQueryParser
-
 from nti.hypatia import search_queue
 from nti.hypatia import search_catalog
 from nti.hypatia import get_usernames_of_dynamic_memberships
+
+from nti.hypatia.catalog import SearchCatalogQuery
+
+from nti.hypatia.interfaces import ISearchQueryParser
 
 @component.adapter(IUser)
 @interface.implementer(IEntityIndexController)
