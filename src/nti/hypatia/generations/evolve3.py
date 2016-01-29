@@ -16,15 +16,19 @@ generation = 3
 import BTrees
 
 from zope import component
-from zope.component.hooks import site, setHooks
+
+from zope.component.hooks import site
+from zope.component.hooks import setHooks
 
 from hypatia.field import FieldIndex
 
 from nti.contentsearch.constants import creator_
+
 from nti.contentsearch.discriminators import get_creator
 
-from ..interfaces import ISearchCatalog
-from ..utils import all_indexable_objects_iids
+from nti.hypatia.interfaces import ISearchCatalog
+
+from nti.hypatia.utils import all_indexable_objects_iids
 
 def do_evolve(context):
 	setHooks()
@@ -33,8 +37,8 @@ def do_evolve(context):
 	ds_folder = root['nti.dataserver']
 
 	lsm = ds_folder.getSiteManager()
-	catalog  = lsm.getUtility(provided=ISearchCatalog)
-		
+	catalog = lsm.getUtility(provided=ISearchCatalog)
+
 	if creator_ in catalog:
 		return 0
 

@@ -13,12 +13,13 @@ from hamcrest import assert_that
 import unittest
 
 from nti.dataserver.tests import mock_dataserver
+
 from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
 
 from nti.hypatia.tests import SharedConfiguringTestLayer
 
 class TestFunctionalInstall(unittest.TestCase):
-	
+
 	layer = SharedConfiguringTestLayer
 
 	@WithMockDSTrans
@@ -26,4 +27,4 @@ class TestFunctionalInstall(unittest.TestCase):
 		conn = mock_dataserver.current_transaction
 		root = conn.root()
 		generations = root['zope.generations']
-		assert_that( generations, has_key('nti.dataserver-hypatia'))
+		assert_that(generations, has_key('nti.dataserver-hypatia'))

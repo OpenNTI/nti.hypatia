@@ -14,14 +14,18 @@ logger = __import__('logging').getLogger(__name__)
 generation = 8
 
 from zope import component
-from zope.component.hooks import site, setHooks
+
+from zope.component.hooks import site
+from zope.component.hooks import setHooks
 
 from hypatia.text import TextIndex
 from hypatia.field import FieldIndex
 
-from ..text import SearchTextIndex
-from ..field import SearchFieldIndex
-from ..interfaces import ISearchCatalog
+from nti.hypatia.field import SearchFieldIndex
+
+from nti.hypatia.interfaces import ISearchCatalog
+
+from nti.hypatia.text import SearchTextIndex
 
 def do_evolve(context):
 	setHooks()
@@ -30,9 +34,9 @@ def do_evolve(context):
 	ds_folder = root['nti.dataserver']
 
 	lsm = ds_folder.getSiteManager()
-	
+
 	logger.info('Hypatia evolution %s started', generation)
-	
+
 	with site(ds_folder):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
 				"Hooks not installed?"

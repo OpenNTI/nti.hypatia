@@ -16,15 +16,16 @@ import unittest
 
 from hypatia.field import FieldIndex
 
-from nti.contentsearch.constants import (createdTime_, lastModified_)
+from nti.contentsearch.constants import createdTime_
+from nti.contentsearch.constants import lastModified_
 
 from nti.hypatia import search_catalog
 from nti.hypatia.generations import evolve6
 
-from nti.hypatia.tests import SharedConfiguringTestLayer
-
 import nti.dataserver.tests.mock_dataserver as mock_dataserver
 from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
+
+from nti.hypatia.tests import SharedConfiguringTestLayer
 
 def noop(*args):
 	pass
@@ -52,4 +53,3 @@ class TestEvolve6(unittest.TestCase):
 
 		assert_that(catalog, does_not(has_key(createdTime_)))
 		assert_that(catalog, does_not(has_key(createdTime_)))
-

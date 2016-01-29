@@ -14,12 +14,13 @@ from hamcrest import assert_that
 import unittest
 
 from nti.hypatia import search_queue
-from nti.hypatia.generations import evolve5
 
-from nti.hypatia.tests import SharedConfiguringTestLayer
+from nti.hypatia.generations import evolve5
 
 import nti.dataserver.tests.mock_dataserver as mock_dataserver
 from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
+
+from nti.hypatia.tests import SharedConfiguringTestLayer
 
 class TestEvolve5(unittest.TestCase):
 

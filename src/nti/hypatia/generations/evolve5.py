@@ -13,13 +13,16 @@ logger = __import__('logging').getLogger(__name__)
 
 generation = 5
 
-import zope.intid
-
 from zope import component
-from zope.component.hooks import site, setHooks
 
-from ..queue import SearchCatalogQueue
-from ..interfaces import ISearchCatalogQueue
+from zope.component.hooks import site
+from zope.component.hooks import setHooks
+
+from zope.intid.interfaces import IIntIds
+
+from nti.hypatia.interfaces import ISearchCatalogQueue
+
+from nti.hypatia.queue import SearchCatalogQueue
 
 def do_evolve(context):
 	setHooks()
@@ -28,7 +31,7 @@ def do_evolve(context):
 	ds_folder = root['nti.dataserver']
 
 	lsm = ds_folder.getSiteManager()
-	intids = lsm.getUtility(zope.intid.IIntIds)
+	intids = lsm.getUtility(IIntIds)
 
 	with site(ds_folder):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \

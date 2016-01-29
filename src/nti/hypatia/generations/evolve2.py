@@ -13,16 +13,18 @@ logger = __import__('logging').getLogger(__name__)
 
 generation = 2
 
-import zope.intid
-
 from zope import component
-from zope.component.hooks import site, setHooks
+
+from zope.component.hooks import site
+from zope.component.hooks import setHooks
+
+from zope.intid.interfaces import IIntIds
 
 from zc import intid as zc_intid
 
-from .. import search_queue
+from nti.hypatia import search_queue
 
-from ..utils import all_indexable_objects_iids
+from nti.hypatia.utils import all_indexable_objects_iids
 
 def do_evolve(context, reg_intid=True):
 	setHooks()
@@ -32,8 +34,8 @@ def do_evolve(context, reg_intid=True):
 
 	if reg_intid:
 		lsm = ds_folder.getSiteManager()
-		ds_intid = lsm.getUtility(provided=zope.intid.IIntIds)
-		component.provideUtility(ds_intid, zope.intid.IIntIds)
+		ds_intid = lsm.getUtility(provided=IIntIds)
+		component.provideUtility(ds_intid, IIntIds)
 		component.provideUtility(ds_intid, zc_intid.IIntIds)
 
 	logger.info('Hypatia evolution started')
@@ -43,7 +45,6 @@ def do_evolve(context, reg_intid=True):
 				"Hooks not installed?"
 
 		total = 0
-
 		for iid, _ in all_indexable_objects_iids():
 			try:
 				search_queue().add(iid)

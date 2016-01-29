@@ -13,20 +13,23 @@ logger = __import__('logging').getLogger(__name__)
 
 generation = 4
 
-import zope.intid
-
 from zope import component
-from zope.component.hooks import site, setHooks
+
+from zope.component.hooks import site
+from zope.component.hooks import setHooks
+
+from zope.intid.interfaces import IIntIds
 
 from ZODB.POSException import POSKeyError
 
 from nti.contentsearch.constants import type_
 
-from ..catalog import SearchCatalog
-from ..utils import all_indexable_objects_iids
+from nti.hypatia.catalog import SearchCatalog
 
-from ..interfaces import ISearchCatalog
-from ..interfaces import ISearchCatalogQueue
+from nti.hypatia.interfaces import ISearchCatalog
+from nti.hypatia.interfaces import ISearchCatalogQueue
+
+from nti.hypatia.utils import all_indexable_objects_iids
 
 def do_evolve(context):
 	setHooks()
@@ -35,7 +38,7 @@ def do_evolve(context):
 	ds_folder = root['nti.dataserver']
 
 	lsm = ds_folder.getSiteManager()
-	intids = lsm.getUtility(zope.intid.IIntIds)
+	intids = lsm.getUtility(IIntIds)
 
 	with site(ds_folder):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \

@@ -17,20 +17,22 @@ import unittest
 
 from nti.contentsearch.constants import creator_
 
-from nti.dataserver.users import User
 from nti.dataserver.contenttypes import Note
 
-from nti.ntiids.ntiids import make_ntiid
+from nti.dataserver.users import User
 
 from nti.hypatia import reactor
 from nti.hypatia import search_catalog
+
 from nti.hypatia.generations import evolve3
 
-from nti.hypatia.tests import zanpakuto_commands
-from nti.hypatia.tests import SharedConfiguringTestLayer
+from nti.ntiids.ntiids import make_ntiid
 
 import nti.dataserver.tests.mock_dataserver as mock_dataserver
 from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
+
+from nti.hypatia.tests import zanpakuto_commands
+from nti.hypatia.tests import SharedConfiguringTestLayer
 
 class TestEvolve3(unittest.TestCase):
 

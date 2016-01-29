@@ -17,20 +17,22 @@ import unittest
 
 from nti.contentsearch.constants import type_
 
-from nti.dataserver.users import User
 from nti.dataserver.contenttypes import Note
 
-from nti.ntiids.ntiids import make_ntiid
+from nti.dataserver.users import User
 
 from nti.hypatia import reactor
 from nti.hypatia import search_catalog
+
 from nti.hypatia.generations import evolve4
 
-from nti.hypatia.tests import zanpakuto_commands
-from nti.hypatia.tests import SharedConfiguringTestLayer
+from nti.ntiids.ntiids import make_ntiid
 
 import nti.dataserver.tests.mock_dataserver as mock_dataserver
 from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
+
+from nti.hypatia.tests import zanpakuto_commands
+from nti.hypatia.tests import SharedConfiguringTestLayer
 
 class TestEvolve4(unittest.TestCase):
 
@@ -82,6 +84,6 @@ class TestEvolve4(unittest.TestCase):
 		id_new = id(new_catalog)
 		index = old_catalog[type_]
 		new_docs = index.num_docs
-		
+
 		assert_that(id_new, is_not(equal_to(id_old)))
 		assert_that(new_docs, is_(equal_to(old_docs)))

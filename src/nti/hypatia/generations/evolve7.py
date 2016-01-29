@@ -13,10 +13,12 @@ logger = __import__('logging').getLogger(__name__)
 
 generation = 7
 
-import zope.intid
-
 from zope import component
-from zope.component.hooks import site, setHooks
+
+from zope.component.hooks import site
+from zope.component.hooks import setHooks
+
+from zope.intid.interfaces import IIntIds
 
 from ZODB.POSException import POSKeyError
 
@@ -24,7 +26,7 @@ from nti.contentsearch.constants import type_
 
 from nti.dataserver.contenttypes.forums.interfaces import ICommentPost
 
-from ..interfaces import ISearchCatalog
+from nti.hypatia.interfaces import ISearchCatalog
 
 def do_evolve(context):
 	setHooks()
@@ -34,13 +36,13 @@ def do_evolve(context):
 
 	lsm = ds_folder.getSiteManager()
 	logger.info('Hypatia evolution %s started', generation)
-	
+
 	with site(ds_folder):
 		assert	component.getSiteManager() == ds_folder.getSiteManager(), \
 				"Hooks not installed?"
 
-		intids = lsm.getUtility(zope.intid.IIntIds)
-			
+		intids = lsm.getUtility(IIntIds)
+
 		obj = None
 		count = 0
 		catalog = lsm.getUtility(provided=ISearchCatalog)
@@ -57,7 +59,7 @@ def do_evolve(context):
 					count += 1
 			except POSKeyError:
 				logger.exception("Ignoring broken object %s,%r", uid, obj)
-		
+
 		logger.info('%s comment object(s) reindexed', count)
 		logger.info('Hypatia evolution %s done', generation)
 

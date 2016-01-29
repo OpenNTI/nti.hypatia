@@ -14,11 +14,14 @@ logger = __import__('logging').getLogger(__name__)
 generation = 6
 
 from zope import component
-from zope.component.hooks import site, setHooks
 
-from nti.contentsearch.constants import createdTime_, lastModified_
+from zope.component.hooks import site
+from zope.component.hooks import setHooks
 
-from ..interfaces import ISearchCatalog
+from nti.contentsearch.constants import createdTime_
+from nti.contentsearch.constants import lastModified_
+
+from nti.hypatia.interfaces import ISearchCatalog
 
 def do_evolve(context):
 	setHooks()
