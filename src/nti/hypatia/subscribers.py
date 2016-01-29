@@ -10,23 +10,30 @@ __docformat__ = "restructuredtext en"
 logger = __import__('logging').getLogger(__name__)
 
 from zope import component
+
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 
 from nti.contentsearch.constants import acl_
 from nti.contentsearch.constants import creator_
+
 from nti.contentsearch.discriminators import query_uid
 
-from nti.dataserver.users import Entity
+from nti.dataserver.interfaces import SC_SHARED
+from nti.dataserver.interfaces import SC_CREATED
+from nti.dataserver.interfaces import SC_DELETED
+from nti.dataserver.interfaces import SC_MODIFIED
+
 from nti.dataserver.interfaces import IUser
 from nti.dataserver.interfaces import IEntity
 from nti.dataserver.interfaces import IReadableShared
 from nti.dataserver.interfaces import IDeletedObjectPlaceholder
 from nti.dataserver.interfaces import ITargetedStreamChangeEvent
-from nti.dataserver.interfaces import SC_CREATED, SC_SHARED, SC_MODIFIED, SC_DELETED
 
-from . import is_indexable
-from . import search_queue
-from . import search_catalog
+from nti.dataserver.users import Entity
+
+from nti.hypatia import is_indexable
+from nti.hypatia import search_queue
+from nti.hypatia import search_catalog
 
 def add_2_queue(obj):
 	iid = query_uid(obj)

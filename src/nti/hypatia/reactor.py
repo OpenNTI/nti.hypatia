@@ -17,9 +17,11 @@ from functools import partial
 
 from zope import component
 from zope import interface
+
 from zope.component import ComponentLookupError
 
 from ZODB import loglevels
+
 from ZODB.POSException import POSError
 from ZODB.POSException import ConflictError
 
@@ -29,10 +31,11 @@ from nti.dataserver.interfaces import IDataserverTransactionRunner
 
 from nti.zodb.interfaces import UnableToAcquireCommitLock
 
-from . import process_queue
+from nti.hypatia import process_queue
 
-from .interfaces import IIndexReactor
-from .interfaces import DEFAULT_QUEUE_LIMIT
+from nti.hypatia.interfaces import DEFAULT_QUEUE_LIMIT
+
+from nti.hypatia.interfaces import IIndexReactor
 
 MIN_WAIT_TIME = 5
 MAX_WAIT_TIME = 60

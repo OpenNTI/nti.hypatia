@@ -14,20 +14,28 @@ from zope import interface
 from hypatia.query import Eq
 from hypatia.query import Any
 from hypatia.query import Contains
+
 from hypatia.text.parsetree import ParseError
 
-from nti.contentsearch.interfaces import ISearchQuery
 from nti.contentsearch.content_utils import is_covered_by_ngram_computer
 
+from nti.contentsearch.interfaces import ISearchQuery
+
+from nti.contentsearch.constants import acl_
+from nti.contentsearch.constants import tags_
+from nti.contentsearch.constants import type_
+from nti.contentsearch.constants import title_
+from nti.contentsearch.constants import creator_
+from nti.contentsearch.constants import content_
+from nti.contentsearch.constants import keywords_
 from nti.contentsearch.constants import replacementContent_
-from nti.contentsearch.constants import content_, title_, tags_, keywords_
-from nti.contentsearch.constants import acl_, redactionExplanation_, type_, creator_
+from nti.contentsearch.constants import redactionExplanation_
 
-from . import get_user
-from . import search_catalog
-from . import get_usernames_of_dynamic_memberships
+from nti.hypatia import get_user
+from nti.hypatia import search_catalog
+from nti.hypatia import get_usernames_of_dynamic_memberships
 
-from .interfaces import ISearchQueryParser
+from nti.hypatia.interfaces import ISearchQueryParser
 
 def can_use_ngram_field(query):
 	return is_covered_by_ngram_computer(query.term, query.language)

@@ -18,7 +18,7 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-import repoze.lru
+from repoze.lru import lru_cache
 
 """
 Distance Metrics.
@@ -92,7 +92,7 @@ def edit_distance(s1, s2, transpositions=False):
 			_edit_dist_step(lev, i + 1, j + 1, s1, s2, transpositions=transpositions)
 	return lev[len1][len2]
 
-@repoze.lru.lru_cache(1000, timeout=3600)
+@lru_cache(1000, timeout=3600)
 def nltk_ratio(s1, s2):
 	d = edit_distance(s1, s2, True)
 	lensum = len(s1) + len(s2)
@@ -103,7 +103,7 @@ try:
 	from zopyx.txng3.ext.levenshtein import distance
 	from zopyx.txng3.ext.levenshtein import ratio as zopy_ratio
 
-	@repoze.lru.lru_cache(1000, timeout=3600)
+	@lru_cache(1000, timeout=3600)
 	def ratio(a, b):
 		return zopy_ratio(a, b)
 except ImportError:  # PyPy

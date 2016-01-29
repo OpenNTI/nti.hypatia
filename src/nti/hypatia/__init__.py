@@ -18,13 +18,15 @@ from zope.intid import IIntIds
 
 from nti.contentsearch.interfaces import ITypeResolver
 
-from nti.dataserver.users import User
 from nti.dataserver.interfaces import IUser
 
-from .interfaces import ISearchCatalog
-from .interfaces import ISearchCatalogQueue
-from .interfaces import DEFAULT_QUEUE_LIMIT
-from .interfaces import ISearchCatalogQueueFactory
+from nti.dataserver.users import User
+
+from nti.hypatia.interfaces import DEFAULT_QUEUE_LIMIT
+
+from nti.hypatia.interfaces import ISearchCatalog
+from nti.hypatia.interfaces import ISearchCatalogQueue
+from nti.hypatia.interfaces import ISearchCatalogQueueFactory
 
 def search_queue():
 	factory = component.getUtility(ISearchCatalogQueueFactory)

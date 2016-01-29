@@ -12,10 +12,12 @@ logger = __import__('logging').getLogger(__name__)
 from zope import interface
 
 from hypatia.text import TextIndex
-from hypatia.text.okapiindex import OkapiIndex
+
 from hypatia.text.cosineindex import CosineIndex
 
-from .interfaces import ISearchTextIndex
+from hypatia.text.okapiindex import OkapiIndex
+
+from nti.hypatia.interfaces import ISearchTextIndex
 
 @interface.implementer(ISearchTextIndex)
 class SearchTextIndex(TextIndex):

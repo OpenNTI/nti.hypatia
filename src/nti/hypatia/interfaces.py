@@ -13,6 +13,7 @@ from zc.catalogqueue.interfaces import ICatalogQueue
 
 from hypatia.interfaces import ICatalog
 from hypatia.interfaces import ICatalogQuery
+
 from hypatia.text.interfaces import ILexicon
 
 from nti.contentsearch.interfaces import ISearchQueryParser

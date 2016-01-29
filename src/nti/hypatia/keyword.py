@@ -15,7 +15,7 @@ from zope import interface
 
 from hypatia.keyword import KeywordIndex
 
-from .interfaces import ISearchKeywordIndex
+from nti.hypatia.interfaces import ISearchKeywordIndex
 
 @interface.implementer(ISearchKeywordIndex)
 class SearchKeywordIndex(KeywordIndex):

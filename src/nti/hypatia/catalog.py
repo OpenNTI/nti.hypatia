@@ -18,9 +18,21 @@ import BTrees
 
 from hypatia.catalog import Catalog
 from hypatia.catalog import CatalogQuery
+
 from hypatia.text.cosineindex import CosineIndex
 
 from nti.common.property import Lazy
+
+from nti.contentsearch.constants import acl_
+from nti.contentsearch.constants import tags_
+from nti.contentsearch.constants import type_
+from nti.contentsearch.constants import title_
+from nti.contentsearch.constants import ngrams_
+from nti.contentsearch.constants import creator_
+from nti.contentsearch.constants import content_
+from nti.contentsearch.constants import keywords_
+from nti.contentsearch.constants import replacementContent_
+from nti.contentsearch.constants import redactionExplanation_
 
 from nti.contentsearch.discriminators import get_acl
 from nti.contentsearch.discriminators import get_tags
@@ -33,20 +45,18 @@ from nti.contentsearch.discriminators import get_replacement_content
 from nti.contentsearch.discriminators import get_type as cs_get_type
 from nti.contentsearch.discriminators import get_redaction_explanation_and_ngrams
 
-from nti.contentsearch.constants import type_, acl_, creator_
-from nti.contentsearch.constants import redactionExplanation_, replacementContent_
-from nti.contentsearch.constants import content_, ngrams_, title_, tags_, keywords_
-
 from nti.dataserver import metadata_index
 
-from .lexicon import defaultLexicon
+from nti.hypatia.field import SearchFieldIndex
 
-from .text import SearchTextIndex
-from .field import SearchFieldIndex
-from .keyword import SearchKeywordIndex
+from nti.hypatia.interfaces import ISearchCatalog
+from nti.hypatia.interfaces import ISearchCatalogQuery
 
-from .interfaces import ISearchCatalog
-from .interfaces import ISearchCatalogQuery
+from nti.hypatia.keyword import SearchKeywordIndex
+
+from nti.hypatia.lexicon import defaultLexicon
+
+from nti.hypatia.text import SearchTextIndex
 
 @interface.implementer(ISearchCatalog)
 class SearchCatalog(Catalog):

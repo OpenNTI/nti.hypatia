@@ -13,12 +13,13 @@ logger = __import__('logging').getLogger(__name__)
 
 from zope import interface
 from zope import component
+
 from zope.component.zcml import utility
 
-from .interfaces import ISearchCatalogQueue
-from .interfaces import ISearchCatalogQueueFactory
+from nti.hypatia import process_queue
 
-from . import process_queue
+from nti.hypatia.interfaces import ISearchCatalogQueue
+from nti.hypatia.interfaces import ISearchCatalogQueueFactory
 
 @interface.implementer(ISearchCatalogQueue)
 class ImmediateQueueRunner(object):

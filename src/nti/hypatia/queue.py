@@ -16,17 +16,20 @@ import pytz
 import BTrees
 
 from zope import interface
+
 from zope.container.contained import Contained
 
 from ZODB.interfaces import IBroken
-from ZODB.POSException import POSError, POSKeyError
 
-from zc.catalogqueue.queue import CatalogQueue
+from ZODB.POSException import POSError
+
 from zc.catalogqueue.CatalogEventQueue import REMOVED
 from zc.catalogqueue.CatalogEventQueue import CatalogEventQueue
 
-from .interfaces import ISearchCatalogQueue
-from .interfaces import ISearchCatalogEventQueue
+from zc.catalogqueue.queue import CatalogQueue
+
+from nti.hypatia.interfaces import ISearchCatalogQueue
+from nti.hypatia.interfaces import ISearchCatalogEventQueue
 
 class _ProxyMap(Mapping):
 
@@ -140,7 +143,7 @@ class SearchCatalogQueue(Contained, CatalogQueue):
 						else:
 							for catalog in catalogs:
 								catalog.index_doc(uid, ob)
-				except (POSKeyError, POSError), e:
+				except (POSError), e:
 					if ignore_pke:
 						logger.error("POSError while indexing object with id %s", uid)
 					else:

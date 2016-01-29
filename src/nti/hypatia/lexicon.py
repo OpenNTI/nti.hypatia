@@ -12,11 +12,14 @@ logger = __import__('logging').getLogger(__name__)
 from zope import interface
 
 from hypatia.text.interfaces import IPipelineElement
-from hypatia.text.lexicon import Lexicon, CaseNormalizer, Splitter
 
-from .interfaces import ISearchLexicon
+from hypatia.text.lexicon import Lexicon
+from hypatia.text.lexicon import Splitter
+from hypatia.text.lexicon import CaseNormalizer
 
-from .levenshtein import ratio as levenshtein_ratio
+from nti.hypatia.interfaces import ISearchLexicon
+
+from nti.hypatia.levenshtein import ratio as levenshtein_ratio
 
 @interface.implementer(IPipelineElement)
 class StopWordRemover(object):
