@@ -63,7 +63,7 @@ class _HypatiaUserIndexController(object):
 		self.entity = entity
 		self.memberships = get_usernames_of_dynamic_memberships(self.entity)
 
-	@property
+	@Lazy
 	def username(self):
 		return self.entity.username
 
