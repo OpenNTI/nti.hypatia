@@ -29,21 +29,13 @@ from nti.hypatia import is_indexable
 
 from nti.zodb import isBroken
 
-def _is_indexable_and_valid_object(obj, usernames=(), *args, **kwargs):
-	if IDeletedObjectPlaceholder.providedBy(obj):
+def is_indexable_and_valid_object(obj, *args, **kwargs):
+	if (	isBroken(obj) 
+		or	not is_indexable(obj)
+		or	IDeletedObjectPlaceholder.providedBy(obj)):
 		return False
-
-	if not is_indexable(obj):
-		return False
-
-	if usernames:
-		# get the object creator to try to trigger a POSError if the object is invalid
-		creator = getattr(obj, 'creator', None) or u''
-		username = getattr(creator, 'username', creator)
-		if  not isinstance(username, six.string_types) or \
-			username.lower() not in usernames:
-			return False
 	return True
+_is_indexable_and_valid_object = is_indexable_and_valid_object
 
 def all_indexable_objects_iids(users=(), *args, **kwargs):
 	obj = None
@@ -52,7 +44,11 @@ def all_indexable_objects_iids(users=(), *args, **kwargs):
 	for uid in intids:
 		try:
 			obj = intids.queryObject(uid)
-			if not isBroken(obj, uid) and _is_indexable_and_valid_object(obj, usernames):
+			if not is_indexable_and_valid_object(obj):
+				continue
+			creator = getattr(obj, 'creator', None)
+			creator = getattr(creator, 'username', creator) or u''
+			if not usernames or creator.lower() in usernames:
 				yield uid, obj
 		except AttributeError as e:
 			logger.error("Ignoring %s(%s); %s", type(obj), uid, e)
@@ -66,18 +62,9 @@ def all_cataloged_objects(users=(), sharedWith=False, *args, **kwargs):
 	else:
 		intids_created_by = catalog[IX_CREATOR].ids()
 
-	def _validate(uid):
-		try:
-			obj = intids.queryObject(uid)
-			if not isBroken(obj, uid) and _is_indexable_and_valid_object(obj):
-				return obj
-		except AttributeError as e:
-			logger.error("Ignoring %s(%s); %s", type(obj), uid, e)
-		return None
-
 	for uid in intids_created_by:
 		obj = intids.queryObject(uid)
-		if obj is not None:
+		if obj is not None and is_indexable_and_valid_object(obj):
 			yield uid, obj
 
 	if usernames and sharedWith:
@@ -86,6 +73,6 @@ def all_cataloged_objects(users=(), sharedWith=False, *args, **kwargs):
 		intids_sharedWith = ()
 
 	for uid in intids_sharedWith:
-		obj = _validate(uid)
-		if obj is not None:
+		obj = intids.queryObject(uid)
+		if obj is not None and is_indexable_and_valid_object(obj):
 			yield uid, obj
