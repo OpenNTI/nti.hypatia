@@ -5,7 +5,6 @@
 """
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nti.dataserver.authentication import effective_principals
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -36,6 +35,8 @@ from nti.contentsearch.interfaces import IEntityIndexController
 from nti.contentsearch.search_results import get_or_create_search_results
 from nti.contentsearch.search_results import get_or_create_suggest_results
 from nti.contentsearch.search_results import get_or_create_suggest_and_search_results
+
+from nti.dataserver.authentication import effective_principals
 
 from nti.dataserver.authorization import ACT_READ
 from nti.dataserver.authorization_acl import has_permission
