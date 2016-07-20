@@ -39,6 +39,7 @@ class _HypatiaSearchSchemaManager(SchemaManager):
 												package_name='nti.hypatia.generations')
 def evolve(context):
 	#### from IPython.core.debugger import Tracer; Tracer()()
+	#### IPython.core.debugger.Pdb().set_trace()
 	install_queue(context)
 	install_hypatia(context)
 	evolve2.do_evolve(context, False)  # go to version 2
