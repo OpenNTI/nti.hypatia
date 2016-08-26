@@ -21,8 +21,6 @@ from hypatia.catalog import CatalogQuery
 
 from hypatia.text.cosineindex import CosineIndex
 
-from nti.common.property import Lazy
-
 from nti.contentsearch.constants import acl_
 from nti.contentsearch.constants import tags_
 from nti.contentsearch.constants import type_
@@ -57,6 +55,8 @@ from nti.hypatia.keyword import SearchKeywordIndex
 from nti.hypatia.lexicon import defaultLexicon
 
 from nti.hypatia.text import SearchTextIndex
+
+from nti.property.property import Lazy
 
 @interface.implementer(ISearchCatalog)
 class SearchCatalog(Catalog):

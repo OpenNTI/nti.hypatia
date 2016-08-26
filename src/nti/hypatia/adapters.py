@@ -18,8 +18,6 @@ from perfmetrics import metricmethod
 
 from hypatia.text.parsetree import ParseError
 
-from nti.common.property import Lazy
-
 from nti.contentprocessing import rank_words
 
 from nti.contentsearch.common import get_ugd_indexable_types
@@ -55,6 +53,8 @@ from nti.hypatia import get_usernames_of_dynamic_memberships
 from nti.hypatia.catalog import SearchCatalogQuery
 
 from nti.hypatia.interfaces import ISearchQueryParser
+
+from nti.property.property import Lazy
 
 @component.adapter(IUser)
 @interface.implementer(IEntityIndexController)
