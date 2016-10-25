@@ -22,6 +22,9 @@ from zope.intid.interfaces import IIntIds
 from nti.dataserver.interfaces import IDataserver
 from nti.dataserver.interfaces import IOIDResolver
 
+from nti.hypatia.interfaces import ISearchCatalog
+from nti.hypatia.interfaces import ISearchCatalogQueue
+
 @interface.implementer(IDataserver)
 class MockDataserver(object):
 
@@ -36,18 +39,14 @@ class MockDataserver(object):
 		return None
 
 def _remove_hypatia(lsm, intids):
-	try:
-		from nti.hypatia.interfaces import ISearchCatalog
-		from nti.hypatia.interfaces import ISearchCatalogQueue
-		
-		for provided in (ISearchCatalog, ISearchCatalogQueue):
-			obj = lsm.queryUtility(provided=provided)
-			if obj is not None:
-				intids.unregister(obj)
-				lsm.unregisterUtility(obj, provided=provided)
-				obj.__parent__ = None
-	except ImportError:
-		pass
+	for provided in (ISearchCatalog, ISearchCatalogQueue):
+		obj = lsm.queryUtility(provided=provided)
+		if obj is not None:
+			intids.unregister(obj)
+			lsm.unregisterUtility(obj, provided=provided)
+			obj.__parent__ = None
+		if ISearchCatalog.providedBy(obj):
+			obj.reset()
 
 def do_evolve(context, generation=generation):
 	logger.info("Evolution %s started", generation);
