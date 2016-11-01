@@ -18,8 +18,6 @@ from perfmetrics import metricmethod
 
 from hypatia.text.parsetree import ParseError
 
-from nti.contentprocessing import rank_words
-
 from nti.contentsearch.common import get_ugd_indexable_types
 
 from nti.contentsearch.constants import content_
@@ -32,7 +30,6 @@ from nti.contentsearch.interfaces import IEntityIndexController
 
 from nti.contentsearch.search_results import get_or_create_search_results
 from nti.contentsearch.search_results import get_or_create_suggest_results
-from nti.contentsearch.search_results import get_or_create_suggest_and_search_results
 
 from nti.dataserver.authentication import effective_principals
 
@@ -166,18 +163,4 @@ class _HypatiaUserIndexController(object):
 												  	 threshold=threshold,
 												 	 common_length=prefix)
 		results.add([t[0] for t in words])
-		return results
-
-	def suggest_and_search(self, query, store=None, **kwargs):
-		query = ISearchQuery(query)
-		store = get_or_create_suggest_and_search_results(query, store)
-		if ' ' in query.term or query.IsPrefixSearch or query.IsPhraseSearch:
-			results = self.do_search(query, store)
-		else:
-			suggest_results = self.suggest(query)
-			suggestions = suggest_results.Suggestions
-			if suggestions:
-				suggestions = rank_words(query.term, suggestions)
-				query.term = suggestions[0]
-			results = self.do_search(query, store)
 		return results
