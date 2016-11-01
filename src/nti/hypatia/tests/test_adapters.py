@@ -89,13 +89,6 @@ class TestAdapters(unittest.TestCase):
 		hits = searcher.suggest("")
 		assert_that(hits, has_length(0))
 
-		searcher = IHypatiaUserIndexController(user1)
-		hits = searcher.suggest_and_search("jinzen")
-		assert_that(hits, has_length(1))
-
-		hits = searcher.suggest_and_search("performing Jinzen")
-		assert_that(hits, has_length(1))
-
 	@WithMockDSTrans
 	def test_noops(self):
 		user1 = self._create_user(username='user1@nti.com')
