@@ -21,17 +21,6 @@ from hypatia.catalog import CatalogQuery
 
 from hypatia.text.cosineindex import CosineIndex
 
-from nti.contentsearch.constants import acl_
-from nti.contentsearch.constants import tags_
-from nti.contentsearch.constants import type_
-from nti.contentsearch.constants import title_
-from nti.contentsearch.constants import ngrams_
-from nti.contentsearch.constants import creator_
-from nti.contentsearch.constants import content_
-from nti.contentsearch.constants import keywords_
-from nti.contentsearch.constants import replacementContent_
-from nti.contentsearch.constants import redactionExplanation_
-
 from nti.contentsearch.discriminators import get_acl
 from nti.contentsearch.discriminators import get_tags
 from nti.contentsearch.discriminators import get_creator
@@ -73,54 +62,54 @@ def create_catalog(lexicon=None, ngram_lexicon=None, family=BTrees.family64):
 
 	result = SearchCatalog(family=family)
 
-	result[type_] = SearchKeywordIndex(discriminator=get_type, family=family)
+	result['type'] = SearchKeywordIndex(discriminator=get_type, family=family)
 
 	index = CosineIndex(lexicon=lexicon, family=family)
-	result[content_] = \
+	result['content'] = \
 				SearchTextIndex(lexicon=lexicon,
 								index=index,
 								discriminator=get_object_content,
 								family=family)
 
 	index = CosineIndex(lexicon=ngram_lexicon, family=family)
-	result[ngrams_] = \
+	result['ngrams'] = \
 				SearchTextIndex(lexicon=ngram_lexicon,
 								index=index,
 								discriminator=get_object_ngrams,
 								family=family)
 
-	result[tags_] = SearchKeywordIndex(discriminator=get_tags,
+	result['tags'] = SearchKeywordIndex(discriminator=get_tags,
 								 	   family=family)
 
-	result[keywords_] = SearchKeywordIndex(discriminator=get_keywords,
+	result['keywords'] = SearchKeywordIndex(discriminator=get_keywords,
 									 	   family=family)
 
 	index = CosineIndex(lexicon=lexicon, family=family)
-	result[title_] = \
+	result['title'] = \
 				SearchTextIndex(lexicon=lexicon,
 								index=index,
 								discriminator=get_title_and_ngrams,
 								family=family)
 
 	index = CosineIndex(lexicon=lexicon, family=family)
-	result[redactionExplanation_] = \
+	result['redactionExplanation'] = \
 				SearchTextIndex(lexicon=lexicon,
 						  		index=index,
 						 		discriminator=get_redaction_explanation_and_ngrams,
 						 		family=family)
 
 	index = CosineIndex(lexicon=lexicon, family=family)
-	result[replacementContent_] = \
+	result['replacementContent'] = \
 				SearchTextIndex(lexicon=lexicon,
 								index=index,
 								discriminator=get_replacement_content,
 								family=family)
 
-	result[creator_] = SearchFieldIndex(discriminator=get_creator,
-								  		family=family)
+	result['creator'] = SearchFieldIndex(discriminator=get_creator,
+								  		 family=family)
 
-	result[acl_] = SearchKeywordIndex(discriminator=get_acl,
-									  family=family)
+	result['acl'] = SearchKeywordIndex(discriminator=get_acl,
+									   family=family)
 
 	return result
 
