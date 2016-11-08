@@ -16,8 +16,6 @@ from zope import component
 
 from zope.intid import IIntIds
 
-from nti.contentsearch.interfaces import ITypeResolver
-
 from nti.dataserver.interfaces import IUser
 
 from nti.dataserver.users import User
@@ -49,7 +47,11 @@ def get_usernames_of_dynamic_memberships(user):
 	return result
 
 def is_indexable(x):
-	return ITypeResolver(x, None) is not None
+	try:
+		from nti.contentsearch.interfaces import ITypeResolver
+		return ITypeResolver(x, None) is not None
+	except ImportError:
+		return False
 
 def queue_length(queue=None):
 	queue = queue if queue is not None else search_queue()
