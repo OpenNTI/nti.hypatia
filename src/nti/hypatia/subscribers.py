@@ -13,9 +13,6 @@ from zope import component
 
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 
-from nti.contentsearch.constants import acl_
-from nti.contentsearch.constants import creator_
-
 from nti.contentsearch.discriminators import query_uid
 
 from nti.dataserver.interfaces import SC_SHARED
@@ -90,10 +87,10 @@ def delete_userdata(username):
 	username = username.lower()
 	catalog = search_catalog()
 	# remove from ACL index
-	kwIndex = catalog[acl_]
+	kwIndex = catalog['acl']
 	kwIndex.remove_word(username)
 	# remove from creator index
-	crIndex = catalog[creator_]
+	crIndex = catalog['creator']
 	try:
 		docids = crIndex._fwd_index[username]
 		for docid in list(docids or ()):
