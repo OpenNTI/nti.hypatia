@@ -43,6 +43,7 @@ def _create_user(username='nt@nti.com', password='temp001'):
 	usr = User.create_user(ds, username=username, password=password)
 	return usr
 
+@unittest.SkipTest
 class TestLegacySearch(unittest.TestCase):
 
 	layer = SharedConfiguringTestLayer

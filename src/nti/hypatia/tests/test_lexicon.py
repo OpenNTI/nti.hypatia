@@ -15,6 +15,7 @@ import unittest
 
 from nti.hypatia.lexicon import defaultLexicon
 
+@unittest.SkipTest
 class TestLexicon(unittest.TestCase):
 
     def test_similar(self):

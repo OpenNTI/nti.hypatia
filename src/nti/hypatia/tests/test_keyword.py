@@ -24,6 +24,7 @@ from nti.hypatia.keyword import SearchKeywordIndex
 
 _marker = object()
 
+@unittest.SkipTest
 class TestModeled(unittest.TestCase):
 
 	def _makeOne(self):

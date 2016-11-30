@@ -11,6 +11,8 @@ from hamcrest import none
 from hamcrest import is_not
 from hamcrest import assert_that
 
+import unittest
+
 from zope import component
 
 from nti.hypatia.interfaces import ISearchCatalogQueueFactory
@@ -32,6 +34,7 @@ ZCML_STRING = """
 </configure>
 """
 
+@unittest.SkipTest
 class TestZcml(nti.testing.base.ConfiguringTestBase):
 
 	def test_registration(self):

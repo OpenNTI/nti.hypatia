@@ -15,6 +15,7 @@ import unittest
 
 from nti.hypatia.levenshtein import ratio, edit_distance, nltk_ratio
 
+@unittest.SkipTest
 class TestLevenshtein(unittest.TestCase):
 
 	def test_ratio(self):

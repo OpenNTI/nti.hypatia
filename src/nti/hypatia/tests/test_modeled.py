@@ -32,6 +32,7 @@ import nti.dataserver.tests.mock_dataserver as mock_dataserver
 
 from nti.hypatia.tests import SharedConfiguringTestLayer
 
+@unittest.SkipTest
 class TestModeled(unittest.TestCase):
 
 	layer = SharedConfiguringTestLayer

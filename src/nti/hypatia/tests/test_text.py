@@ -20,6 +20,7 @@ from nti.hypatia.text import SourceOkapiIndex
 from nti.hypatia.text import SourceCosineIndex
 from nti.hypatia.lexicon import defaultLexicon
 
+@unittest.SkipTest
 class TestIndex(unittest.TestCase):
 
 	def _makeCosineIndex(self):

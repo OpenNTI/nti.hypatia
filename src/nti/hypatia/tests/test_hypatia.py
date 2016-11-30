@@ -19,6 +19,7 @@ from nti.hypatia import is_indexable
 
 from nti.hypatia.tests import SharedConfiguringTestLayer
 
+@unittest.SkipTest
 class TestModeled(unittest.TestCase):
 
 	layer = SharedConfiguringTestLayer
