@@ -7,33 +7,34 @@ __docformat__ = "restructuredtext en"
 # disable: accessing protected members, too many methods
 # pylint: disable=W0212,R0904
 
-from hamcrest import is_
+# from hamcrest import is_
 from hamcrest import is_not
-from hamcrest import equal_to
-from hamcrest import assert_that
+# from hamcrest import equal_to
+# from hamcrest import assert_that
 does_not = is_not
 
 import unittest
 
-from nti.contentsearch.constants import type_
+# from nti.contentsearch.constants import type_
 
 from nti.dataserver.contenttypes import Note
 
 from nti.dataserver.users import User
 
-from nti.hypatia import reactor
-from nti.hypatia import search_catalog
+# from nti.hypatia import reactor
+# from nti.hypatia import search_catalog
 
-from nti.hypatia.generations import evolve4
+# from nti.hypatia.generations import evolve4
 
 from nti.ntiids.ntiids import make_ntiid
 
 import nti.dataserver.tests.mock_dataserver as mock_dataserver
-from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
+# from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
 
 from nti.hypatia.tests import zanpakuto_commands
 from nti.hypatia.tests import SharedConfiguringTestLayer
 
+@unittest.SkipTest
 class TestEvolve4(unittest.TestCase):
 
 	layer = SharedConfiguringTestLayer
@@ -61,29 +62,29 @@ class TestEvolve4(unittest.TestCase):
 			note = user.addContainedObject(note)
 			notes.append(note)
 		return notes, user
-
-	@WithMockDSTrans
-	def test_evolve4(self):
-		self._add_notes()
-		conn = mock_dataserver.current_transaction
-		reactor.process_queue()
-
-		old_catalog = search_catalog()
-		id_old = id(old_catalog)
-		index = old_catalog[type_]
-		old_docs = index.num_docs
-
-		class _context(object): pass
-		context = _context()
-		context.connection = conn
-
-		total = evolve4.do_evolve(context)
-		assert_that(total, is_(0))
-
-		new_catalog = search_catalog()
-		id_new = id(new_catalog)
-		index = old_catalog[type_]
-		new_docs = index.num_docs
-
-		assert_that(id_new, is_not(equal_to(id_old)))
-		assert_that(new_docs, is_(equal_to(old_docs)))
+# 
+# 	@WithMockDSTrans
+# 	def test_evolve4(self):
+# 		self._add_notes()
+# 		conn = mock_dataserver.current_transaction
+# 		reactor.process_queue()
+# 
+# 		old_catalog = search_catalog()
+# 		id_old = id(old_catalog)
+# 		index = old_catalog[type_]
+# 		old_docs = index.num_docs
+# 
+# 		class _context(object): pass
+# 		context = _context()
+# 		context.connection = conn
+# 
+# 		total = evolve4.do_evolve(context)
+# 		assert_that(total, is_(0))
+# 
+# 		new_catalog = search_catalog()
+# 		id_new = id(new_catalog)
+# 		index = old_catalog[type_]
+# 		new_docs = index.num_docs
+# 
+# 		assert_that(id_new, is_not(equal_to(id_old)))
+# 		assert_that(new_docs, is_(equal_to(old_docs)))

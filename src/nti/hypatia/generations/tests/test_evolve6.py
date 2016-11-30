@@ -8,48 +8,49 @@ __docformat__ = "restructuredtext en"
 # pylint: disable=W0212,R0904
 
 from hamcrest import is_not
-from hamcrest import has_key
-from hamcrest import assert_that
+# from hamcrest import has_key
+# from hamcrest import assert_that
 does_not = is_not
 
 import unittest
 
-from hypatia.field import FieldIndex
+# from hypatia.field import FieldIndex
 
-from nti.contentsearch.constants import createdTime_
-from nti.contentsearch.constants import lastModified_
+# from nti.contentsearch.constants import createdTime_
+# from nti.contentsearch.constants import lastModified_
 
-from nti.hypatia import search_catalog
-from nti.hypatia.generations import evolve6
+# from nti.hypatia import search_catalog
+# from nti.hypatia.generations import evolve6
 
-import nti.dataserver.tests.mock_dataserver as mock_dataserver
-from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
+# import nti.dataserver.tests.mock_dataserver as mock_dataserver
+# from nti.dataserver.tests.mock_dataserver import WithMockDSTrans
 
 from nti.hypatia.tests import SharedConfiguringTestLayer
 
 def noop(*args):
 	pass
 
+@unittest.SkipTest
 class TestEvolve6(unittest.TestCase):
 
 	layer = SharedConfiguringTestLayer
 
-	@WithMockDSTrans
-	def test_evolve6(self):
-		conn = mock_dataserver.current_transaction
-
-		catalog = search_catalog()
-		catalog[createdTime_] = FieldIndex(noop)
-		catalog[lastModified_] = FieldIndex(noop)
-
-		assert_that(catalog, has_key(createdTime_))
-		assert_that(catalog, has_key(createdTime_))
-
-		class _context(object): pass
-		context = _context()
-		context.connection = conn
-
-		evolve6.do_evolve(context)
-
-		assert_that(catalog, does_not(has_key(createdTime_)))
-		assert_that(catalog, does_not(has_key(createdTime_)))
+# 	@WithMockDSTrans
+# 	def test_evolve6(self):
+# 		conn = mock_dataserver.current_transaction
+# 
+# 		catalog = search_catalog()
+# 		catalog[createdTime_] = FieldIndex(noop)
+# 		catalog[lastModified_] = FieldIndex(noop)
+# 
+# 		assert_that(catalog, has_key(createdTime_))
+# 		assert_that(catalog, has_key(createdTime_))
+# 
+# 		class _context(object): pass
+# 		context = _context()
+# 		context.connection = conn
+# 
+# 		evolve6.do_evolve(context)
+# 
+# 		assert_that(catalog, does_not(has_key(createdTime_)))
+# 		assert_that(catalog, does_not(has_key(createdTime_)))

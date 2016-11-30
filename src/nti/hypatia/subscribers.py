@@ -13,7 +13,7 @@ from zope import component
 
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 
-from nti.contentsearch.discriminators import query_uid
+# from nti.contentsearch.discriminators import query_uid
 
 from nti.dataserver.interfaces import SC_SHARED
 from nti.dataserver.interfaces import SC_CREATED
@@ -33,7 +33,7 @@ from nti.hypatia import search_queue
 from nti.hypatia import search_catalog
 
 def add_2_queue(obj):
-	iid = query_uid(obj)
+	iid = None # query_uid(obj)
 	if iid is not None:
 		__traceback_info__ = iid
 		search_queue().add(iid)
@@ -50,7 +50,7 @@ def queue_added(obj):
 
 def queue_modified(obj):
 	if is_indexable(obj):
-		iid = query_uid(obj)
+		iid = None # query_uid(obj)
 		if iid is not None:
 			__traceback_info__ = iid
 			try:
@@ -62,7 +62,7 @@ def queue_modified(obj):
 
 def queue_remove(obj):
 	if is_indexable(obj):
-		iid = query_uid(obj)
+		iid = None # query_uid(obj)
 		if iid is not None:
 			__traceback_info__ = iid
 			search_queue().remove(iid)
