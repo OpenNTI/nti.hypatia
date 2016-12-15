@@ -54,7 +54,7 @@ def do_evolve(context, generation=generation):
 	setHooks()
 	conn = context.connection
 	ds_folder = conn.root()['nti.dataserver']
-	
+
 	mock_ds = MockDataserver()
 	mock_ds.root = ds_folder
 	component.provideUtility(mock_ds, IDataserver)
