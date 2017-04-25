@@ -12,6 +12,8 @@ logger = __import__('logging').getLogger(__name__)
 from zope import component
 from zope import interface
 
+from zope.cachedescriptors.property import Lazy
+
 from zope.catalog.interfaces import ICatalog as ZOPE_ICATALOG
 
 import BTrees
@@ -45,7 +47,6 @@ from nti.hypatia.lexicon import defaultLexicon
 
 from nti.hypatia.text import SearchTextIndex
 
-from nti.property.property import Lazy
 
 @interface.implementer(ISearchCatalog)
 class SearchCatalog(Catalog):

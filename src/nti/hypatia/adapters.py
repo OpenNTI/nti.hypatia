@@ -12,6 +12,8 @@ logger = __import__('logging').getLogger(__name__)
 from zope import component
 from zope import interface
 
+from zope.cachedescriptors.property import Lazy
+
 from zope.intid.interfaces import IIntIds
 
 from perfmetrics import metricmethod
@@ -51,7 +53,6 @@ from nti.hypatia.catalog import SearchCatalogQuery
 
 from nti.hypatia.interfaces import ISearchQueryParser
 
-from nti.property.property import Lazy
 
 @component.adapter(IUser)
 @interface.implementer(IEntityIndexController)
@@ -71,11 +72,11 @@ class _HypatiaUserIndexController(object):
 	@Lazy
 	def memberships(self):
 		return get_usernames_of_dynamic_memberships(self.entity)
-	
+
 	@Lazy
 	def effective_principals(self):
 		return effective_principals(self.username, everyone=False, skip_cache=True)
-	
+
 	def verify_access(self, obj):
 		result = obj.isSharedDirectlyWith(self.entity) \
 				 if IReadableShared.providedBy(obj) else False
@@ -84,9 +85,9 @@ class _HypatiaUserIndexController(object):
 			if IHeadlinePost.providedBy(obj):
 				to_check = to_check.__parent__
 			if IPublishableTopic.providedBy(to_check):
-				result = has_permission(ACT_READ, 
-										to_check, 
-										self.username, 
+				result = has_permission(ACT_READ,
+										to_check,
+										self.username,
 										principals=self.effective_principals)
 			else:
 				acl = set(get_acl(obj, ()))
